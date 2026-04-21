@@ -180,10 +180,9 @@
     align-items: center; padding: 28px 20px 40px; gap: 14px;
   }
   .app-logo {
-    width: 64px; height: 64px; border-radius: 16px;
-    background: linear-gradient(135deg, #1a6ed8, #4d8ef5);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px; box-shadow: 0 4px 16px rgba(77,142,245,0.4);
+    width: 96px; height: 96px; border-radius: 22px;
+    object-fit: cover;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   }
   #upload-screen h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   #upload-screen p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.5; text-align: center; max-width: 380px; }
@@ -489,11 +488,10 @@
   /* ── About dialog ───────────────────────────────────── */
   .about-dialog { text-align: center; }
   .about-logo {
-    width: 72px; height: 72px; border-radius: 18px;
-    background: linear-gradient(135deg, #1a6ed8, #4d8ef5);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 36px; margin: 0 auto 16px;
-    box-shadow: 0 4px 16px rgba(77,142,245,0.35);
+    width: 88px; height: 88px; border-radius: 20px;
+    object-fit: cover;
+    margin: 0 auto 16px; display: block;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
   }
   .about-title {
     margin: 0 0 8px; font-size: 19px; font-weight: 800;
@@ -534,7 +532,7 @@
 </div>
 
 <div id="install-prompt">
-  <div class="install-icon">✈</div>
+  <div class="install-icon"><img src="./icons/icon-192.png" alt="" style="width:28px;height:28px;border-radius:6px;object-fit:cover;"></div>
   <div class="install-text">
     <strong>App installieren</strong>
     <span>Offline &amp; Vollbild nutzen</span>
@@ -545,7 +543,7 @@
 
 <!-- Start Screen -->
 <div id="upload-screen">
-  <div class="app-logo">✈</div>
+  <img class="app-logo" src="./icons/icon-192.png" alt="App Icon">
   <h2>Checkliste &amp; Info</h2>
   <p>Zwei getrennte Bereiche: interaktive Checkliste (abhakbar) und reine Info-Seiten (Frequenzen, Flugplätze, Daten).</p>
 
@@ -665,7 +663,7 @@ Trennzeichen: <code>;</code> <code>,</code> Tab
 <div class="dialog-overlay" id="about-dialog" onclick="closeAbout()">
   <div class="dialog about-dialog" onclick="event.stopPropagation()">
     <div class="dialog-handle"></div>
-    <div class="about-logo">✈</div>
+    <img class="about-logo" src="./icons/icon-192.png" alt="App Icon">
     <h3 class="about-title">About Checklist &amp; Info</h3>
     <p class="about-desc">Offline-fähige Flug-Checkliste und Info-App für Segelflugzeuge als Progressive Web App.</p>
     <div class="about-divider"></div>
