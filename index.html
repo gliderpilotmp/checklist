@@ -7,23 +7,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Checkliste">
-<meta name="application-name" content="Checkliste">
 <meta name="theme-color" content="#1a1a1a" id="theme-color-meta">
-<meta name="description" content="Flug-Checkliste für Arcus M D-KJRR – offline nutzbar">
 
 <title>Arcus M Checkliste</title>
 
-<!-- PWA Manifest -->
 <link rel="manifest" href="./manifest.json">
-
-<!-- Apple Touch Icons -->
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="./icons/icon-512.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-
-<!-- Apple Splash Screens (black bg) -->
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 <style>
   :root {
@@ -37,6 +29,7 @@
     --text-dim-2: #6e6e6e;
     --accent: #4d8ef5;
     --accent-active: #3a7ae0;
+    --info-accent: #f9c74f;
     --check-bg: #1a3d1a;
     --check-bg-active: #255225;
     --check-text: #8ecf8e;
@@ -59,6 +52,7 @@
     --text-dim-2: #aeaeb2;
     --accent: #1a6ed8;
     --accent-active: #1454a8;
+    --info-accent: #d68f00;
     --check-bg: #d4f0d4;
     --check-bg-active: #b8e4b8;
     --check-text: #1a5c1a;
@@ -84,22 +78,16 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  /* ── Update Banner ─────────────────────────────────────── */
   #update-banner {
-    display: none;
-    background: var(--accent); color: white;
+    display: none; background: var(--accent); color: white;
     padding: 10px 16px; font-size: 13px;
-    flex-shrink: 0; cursor: pointer;
-    text-align: center; font-weight: 500;
+    flex-shrink: 0; cursor: pointer; text-align: center; font-weight: 500;
   }
   #update-banner.show { display: block; }
 
-  /* ── Install Prompt ────────────────────────────────────── */
   #install-prompt {
-    display: none;
-    background: var(--bg-elevated); border-bottom: 1px solid var(--border);
-    padding: 10px 14px; flex-shrink: 0;
-    align-items: center; gap: 10px;
+    display: none; background: var(--bg-elevated); border-bottom: 1px solid var(--border);
+    padding: 10px 14px; flex-shrink: 0; align-items: center; gap: 10px;
   }
   #install-prompt.show { display: flex; }
   #install-prompt .install-icon {
@@ -114,31 +102,47 @@
   #install-prompt .install-btn {
     background: var(--accent); color: white; border: none;
     padding: 7px 14px; border-radius: 7px; font-size: 13px;
-    font-weight: 600; cursor: pointer; white-space: nowrap;
+    font-weight: 600; cursor: pointer;
   }
   #install-prompt .dismiss-btn {
     background: transparent; border: none; color: var(--text-dim-2);
     font-size: 18px; padding: 4px; cursor: pointer;
   }
 
-  /* ── Header ────────────────────────────────────────────── */
   header {
     background: var(--bg-elevated);
     padding: 9px 10px;
     border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 4px;
+    display: flex; align-items: center; gap: 6px;
     flex-shrink: 0;
   }
-  .title-block { flex: 1; min-width: 0; }
-  .title-block h1 {
-    font-size: 15px; margin: 0; font-weight: 700; color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    letter-spacing: -0.2px;
+
+  .segmented {
+    display: flex; background: var(--bg-elevated-2);
+    border-radius: 8px; padding: 3px; gap: 2px; flex: 1; min-width: 0;
   }
-  .title-block .profile-label {
-    font-size: 10px; color: var(--text-dim-2);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  .segmented button {
+    flex: 1; background: transparent; border: none; color: var(--text-dim);
+    padding: 7px 10px; font-size: 13px; font-weight: 600;
+    border-radius: 6px; cursor: pointer; transition: all 0.18s;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    white-space: nowrap;
   }
+  .segmented button.active {
+    background: var(--bg-elevated); color: var(--text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  }
+  :root[data-theme="light"] .segmented button.active {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .segmented button[data-mode="info"].active { color: var(--info-accent); }
+  .segmented .count {
+    font-size: 10.5px; padding: 1px 5px; border-radius: 8px;
+    background: var(--bg-elevated-2); color: var(--text-dim-2);
+    font-weight: 500; font-variant-numeric: tabular-nums;
+  }
+  .segmented button.active .count { background: var(--bg-elevated-2); color: var(--text-dim); }
+
   .progress-pill {
     font-size: 12px; color: var(--text-dim);
     font-variant-numeric: tabular-nums;
@@ -146,9 +150,9 @@
     border-radius: 20px; white-space: nowrap;
     transition: background 0.2s, color 0.2s;
   }
-  .progress-pill.complete {
-    background: var(--check-bg); color: var(--check-text);
-  }
+  .progress-pill.complete { background: var(--check-bg); color: var(--check-text); }
+  .progress-pill.hidden { display: none; }
+
   .icon-btn {
     background: transparent; border: none; color: var(--text-dim);
     font-size: 18px; padding: 6px 7px; cursor: pointer;
@@ -158,14 +162,11 @@
   }
   .icon-btn:active { background: var(--bg-elevated-2); }
   .icon-btn.active { color: #f9c74f; background: rgba(249,199,79,0.12); }
-  .icon-btn.active-blue { color: var(--accent); background: rgba(77,142,245,0.12); }
 
-  /* ── Upload / Start Screen ─────────────────────────────── */
   #upload-screen {
     flex: 1; overflow-y: auto;
     display: flex; flex-direction: column;
-    align-items: center; padding: 28px 20px 40px;
-    gap: 16px;
+    align-items: center; padding: 28px 20px 40px; gap: 14px;
   }
   .app-logo {
     width: 64px; height: 64px; border-radius: 16px;
@@ -177,12 +178,17 @@
   #upload-screen p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.5; text-align: center; max-width: 380px; }
 
   .btn-row { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 380px; }
+  .btn-section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--text-dim-2); font-weight: 700;
+    margin: 10px 0 -4px; text-align: center; width: 100%; max-width: 380px;
+  }
+
   .btn {
     background: var(--accent); color: white; border: none;
     padding: 14px 20px; border-radius: var(--radius); font-size: 15px;
     font-weight: 600; cursor: pointer; width: 100%;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.15s;
   }
   .btn:active { background: var(--accent-active); transform: scale(0.98); }
   .btn.secondary {
@@ -190,7 +196,12 @@
     border: 1.5px solid var(--accent);
   }
   .btn.secondary:active { background: rgba(77,142,245,0.08); }
-  .btn.danger { background: var(--danger); }
+  .btn.info { background: var(--info-accent); color: #1a1a1a; }
+  .btn.info:active { background: #e0b03e; }
+  .btn.info-secondary {
+    background: transparent; color: var(--info-accent);
+    border: 1.5px solid var(--info-accent);
+  }
 
   .profile-list {
     width: 100%; max-width: 380px;
@@ -208,16 +219,16 @@
   .profile-item {
     padding: 13px 16px; display: flex; align-items: center; gap: 12px;
     cursor: pointer; border-bottom: 1px solid var(--border-subtle);
-    transition: background 0.1s;
   }
   .profile-item:last-child { border-bottom: none; }
   .profile-item:active { background: var(--bg-elevated-2); }
   .profile-item .p-icon {
     width: 38px; height: 38px; border-radius: 9px;
-    background: linear-gradient(135deg, #1a6ed8, #4d8ef5);
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
+    font-size: 18px; flex-shrink: 0; color: white;
   }
+  .profile-item .p-icon.cl { background: linear-gradient(135deg, #1a6ed8, #4d8ef5); }
+  .profile-item .p-icon.info { background: linear-gradient(135deg, #d68f00, #f9c74f); color: #1a1a1a; }
   .profile-item .p-info { flex: 1; min-width: 0; }
   .profile-item .p-info .p-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .profile-item .p-info .p-meta { font-size: 12px; color: var(--text-dim-2); margin-top: 2px; }
@@ -237,11 +248,24 @@
   .format-hint strong { color: var(--text); display: block; margin-bottom: 4px; }
   .format-hint code { color: var(--accent); }
 
-  /* ── App Screen ────────────────────────────────────────── */
   #app-screen { flex: 1; display: none; flex-direction: column; overflow: hidden; }
   #app-screen.active { display: flex; }
 
-  /* ── Tabs ──────────────────────────────────────────────── */
+  .profile-bar {
+    background: var(--bg-elevated); padding: 6px 16px;
+    font-size: 11px; color: var(--text-dim-2);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 6px;
+    flex-shrink: 0;
+  }
+  .profile-bar.hidden { display: none; }
+  .profile-bar .mode-chip {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; padding: 1px 6px; border-radius: 4px;
+    background: var(--accent); color: white;
+  }
+  .profile-bar .mode-chip.info { background: var(--info-accent); color: #1a1a1a; }
+
   .tabs {
     display: flex; overflow-x: auto; background: var(--bg-elevated);
     border-bottom: 1px solid var(--border); flex-shrink: 0;
@@ -256,15 +280,15 @@
     transition: color 0.15s;
   }
   .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  body[data-mode="info"] .tab.active { border-bottom-color: var(--info-accent); }
   .tab .dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--bg-elevated-2); flex-shrink: 0;
-    transition: background 0.2s;
   }
   .tab.partial .dot { background: var(--check-icon); opacity: 0.5; }
   .tab.complete .dot { background: var(--check-icon); box-shadow: 0 0 0 2px rgba(76,175,80,0.25); }
+  body[data-mode="info"] .tab .dot { display: none; }
 
-  /* ── Page container ────────────────────────────────────── */
   .page-container {
     flex: 1; overflow-y: auto; overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
@@ -276,13 +300,17 @@
   .page-title {
     position: sticky; top: 0;
     background: linear-gradient(var(--bg) 80%, transparent);
-    padding: 16px 16px 4px; z-index: 5;
-    font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: var(--text);
+    padding: 18px 16px 6px; z-index: 5;
+    font-size: 26px; font-weight: 800; letter-spacing: -0.6px; color: var(--text);
+    line-height: 1.15;
   }
+  body[data-mode="info"] .page-title { color: var(--info-accent); }
+
   .page-meta {
-    padding: 0 16px 4px; color: var(--text-dim-2); font-size: 12px;
+    padding: 2px 16px 6px; color: var(--text-dim-2); font-size: 12px;
     display: flex; align-items: center; gap: 10px;
   }
+  .page-meta.hidden { display: none; }
   .prog-bar {
     flex: 1; height: 3px; background: var(--bg-elevated-2);
     border-radius: 2px; overflow: hidden;
@@ -292,7 +320,6 @@
     border-radius: 2px; transition: width 0.28s ease;
   }
 
-  /* ── Table rows ────────────────────────────────────────── */
   table { width: 100%; border-collapse: collapse; }
 
   tr.hdr td {
@@ -301,43 +328,41 @@
     background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle);
   }
   tr.hdr td:first-child { padding-left: 16px; }
-  tr.hdr td:last-child  { padding-right: 16px; }
+  tr.hdr td:last-child { padding-right: 16px; }
 
   tr.row {
-    cursor: pointer; border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
     transition: background 0.12s;
   }
+  body[data-mode="checklist"] tr.row { cursor: pointer; }
+
   tr.row td {
     padding: 13px 10px; font-size: 15px;
     line-height: 1.35; vertical-align: middle; color: var(--text);
   }
   tr.row td:first-child { padding-left: 16px; font-weight: 500; }
-  tr.row td:last-child  { padding-right: 16px; color: var(--text-dim); text-align: right; font-size: 14px; }
+  tr.row td:last-child { padding-right: 16px; color: var(--text-dim); text-align: right; font-size: 14px; }
 
-  /* critical */
+  body[data-mode="info"] tr.row td:last-child {
+    color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500;
+  }
+
   tr.row.critical {
     background: var(--critical-bg);
     border-left: 3px solid var(--critical-border);
   }
   tr.row.critical td:first-child { padding-left: 13px; }
-  tr.row.critical td:last-child::after {
-    content: " ⚠";
-    color: var(--critical); font-size: 13px;
-  }
+  tr.row.critical td:last-child::after { content: " ⚠"; color: var(--critical); font-size: 13px; }
 
-  /* checked */
   tr.row.checked { background: var(--check-bg); border-left-color: var(--check-icon) !important; }
   tr.row.checked td { color: var(--check-text); }
   tr.row.checked td:first-child::before { content: "✓ "; color: var(--check-icon); font-weight: 700; }
-  tr.row.checked td:last-child::after   { display: none; }
-  tr.row:active { background: var(--bg-elevated-2); }
+  tr.row.checked td:last-child::after { display: none; }
+  body[data-mode="checklist"] tr.row:active { background: var(--bg-elevated-2); }
   tr.row.checked:active { opacity: 0.85; }
 
-  /* hint sub-row */
-  tr.hint-row {
-    cursor: pointer; border-bottom: 1px solid var(--border-subtle);
-  }
-  tr.hint-row.nob { border-top: none; }
+  tr.hint-row { border-bottom: 1px solid var(--border-subtle); }
+  body[data-mode="checklist"] tr.hint-row { cursor: pointer; }
   tr.hint-row td {
     padding: 2px 16px 10px; font-size: 12px;
     color: var(--text-dim-2); font-style: italic; line-height: 1.4;
@@ -345,7 +370,6 @@
   tr.hint-row.checked td { color: var(--check-text); opacity: 0.7; }
   tr.hint-row.critical { background: var(--critical-bg); border-left: 3px solid transparent; }
 
-  /* ── Bottom nav ────────────────────────────────────────── */
   .bottom-nav {
     background: var(--bg-elevated); border-top: 1px solid var(--border);
     display: flex; padding: 8px 10px; gap: 8px;
@@ -355,41 +379,36 @@
   .nav-btn {
     flex: 1; background: var(--bg-elevated-2); color: var(--text);
     border: none; padding: 13px; border-radius: 9px; font-size: 14px;
-    font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+    font-weight: 600; cursor: pointer;
   }
   .nav-btn:active { opacity: 0.7; }
   .nav-btn:disabled { opacity: 0.25; }
   .nav-btn.primary { background: var(--accent); color: white; }
+  body[data-mode="info"] .nav-btn.primary { background: var(--info-accent); color: #1a1a1a; }
 
-  /* ── Menu ──────────────────────────────────────────────── */
-  .menu {
-    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
-    z-index: 200; display: none;
-  }
+  .menu { position: fixed; inset: 0; z-index: 200; display: none; }
   .menu.open { display: block; }
-  .menu-backdrop {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.4);
-  }
+  .menu-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
   .menu-sheet {
     position: absolute; top: 50px; right: 10px;
     background: var(--bg-elevated); border: 1px solid var(--border);
-    border-radius: 12px; min-width: 230px;
+    border-radius: 12px; min-width: 240px;
     box-shadow: var(--shadow); overflow: hidden;
+    max-height: calc(100vh - 80px); overflow-y: auto;
   }
   .menu-item {
     padding: 13px 16px; cursor: pointer; font-size: 14px;
     border-bottom: 1px solid var(--border-subtle); color: var(--text);
     display: flex; align-items: center; gap: 11px;
-    transition: background 0.1s;
   }
   .menu-item:last-child { border-bottom: none; }
   .menu-item:active { background: var(--bg-elevated-2); }
   .menu-item.danger { color: var(--danger); }
+  .menu-item.disabled { opacity: 0.4; pointer-events: none; }
   .menu-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
   .menu-badge {
     margin-left: auto; font-size: 11px; padding: 2px 8px;
     border-radius: 10px; background: var(--bg-elevated-2); color: var(--text-dim);
-    white-space: nowrap;
   }
   .menu-badge.on { background: var(--check-bg); color: var(--check-text); }
   .menu-section {
@@ -398,25 +417,23 @@
     background: var(--bg-elevated-2);
   }
 
-  /* ── Toast ─────────────────────────────────────────────── */
   .toast {
     position: fixed; bottom: 90px; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: rgba(50,50,55,0.95); color: #f0f0f0;
     padding: 9px 18px; border-radius: 20px; font-size: 13px;
     box-shadow: var(--shadow); opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition: opacity 0.2s, transform 0.2s;
     z-index: 300; pointer-events: none; max-width: 85vw;
     text-align: center; backdrop-filter: blur(8px);
   }
   :root[data-theme="light"] .toast { background: rgba(30,30,35,0.9); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ── Save dialog ───────────────────────────────────────── */
   .dialog-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.55);
     display: none; align-items: flex-end; justify-content: center;
-    z-index: 400; padding: 0;
+    z-index: 400;
   }
   .dialog-overlay.open { display: flex; animation: overlayIn 0.2s ease; }
   @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
@@ -443,25 +460,26 @@
   .dialog-buttons { display: flex; gap: 10px; }
   .dialog-buttons .btn { max-width: none; padding: 13px; font-size: 15px; }
 
-  /* ── Offline badge ─────────────────────────────────────── */
   #offline-badge {
-    display: none;
-    position: fixed; bottom: 90px; right: 12px;
+    display: none; position: fixed; bottom: 90px; right: 12px;
     background: #444; color: #ccc;
     font-size: 11px; padding: 4px 10px; border-radius: 20px;
     z-index: 100; pointer-events: none;
   }
   #offline-badge.show { display: block; }
+
+  .empty-state {
+    padding: 60px 20px; text-align: center; color: var(--text-dim);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 14px; opacity: 0.5; }
+  .empty-state p { margin: 4px 0; font-size: 14px; }
+  .empty-state .hint { font-size: 12px; color: var(--text-dim-2); }
 </style>
 </head>
-<body>
+<body data-mode="checklist">
 
-<!-- Update banner -->
-<div id="update-banner" onclick="applyUpdate()">
-  🔄 Neue Version verfügbar – Tippen zum Aktualisieren
-</div>
+<div id="update-banner" onclick="applyUpdate()">🔄 Neue Version verfügbar – Tippen zum Aktualisieren</div>
 
-<!-- Install prompt (Android Chrome) -->
 <div id="install-prompt">
   <div class="install-icon">✈</div>
   <div class="install-text">
@@ -472,47 +490,62 @@
   <button class="dismiss-btn" onclick="dismissInstall()">×</button>
 </div>
 
-<!-- Upload / Start Screen -->
+<!-- Start Screen -->
 <div id="upload-screen">
   <div class="app-logo">✈</div>
-  <h2>Checkliste</h2>
-  <p>CSV hochladen oder gespeichertes Profil öffnen.</p>
+  <h2>Checkliste &amp; Info</h2>
+  <p>Zwei getrennte Bereiche: interaktive Checkliste (abhakbar) und reine Info-Seiten (Frequenzen, Flugplätze, Daten).</p>
 
-  <div id="profile-list-container" style="width:100%;display:flex;justify-content:center;"></div>
+  <div id="profile-list-container" style="width:100%; display:flex; justify-content:center;"></div>
 
-  <input type="file" id="file-input" accept=".csv,.txt" style="display:none">
+  <input type="file" id="file-input-cl"   accept=".csv,.txt" style="display:none">
+  <input type="file" id="file-input-info" accept=".csv,.txt" style="display:none">
+
+  <div class="btn-section-label">Checkliste</div>
   <div class="btn-row">
-    <button class="btn" onclick="document.getElementById('file-input').click()">
-      📂 CSV hochladen
-    </button>
-    <button class="btn secondary" onclick="loadDemo()">
-      Demo laden (Arcus M D-KJRR)
-    </button>
+    <button class="btn" onclick="document.getElementById('file-input-cl').click()">📂 Checklisten-CSV</button>
+    <button class="btn secondary" onclick="loadChecklistDemo()">Demo (Arcus M D-KJRR)</button>
+  </div>
+
+  <div class="btn-section-label">Info-Seiten</div>
+  <div class="btn-row">
+    <button class="btn info" onclick="document.getElementById('file-input-info').click()">📂 Info-CSV</button>
+    <button class="btn info-secondary" onclick="loadInfoDemo()">Demo (Frequenzen &amp; Daten)</button>
   </div>
 
   <div class="format-hint">
-<strong>CSV-Format (Trennzeichen ; , oder Tab)</strong>
+<strong>CSV-Format (für beide)</strong>
 Kapitelname<br>
-Spalte1;Spalte2;Hinweis (optional)<br>
+Spalte1;Spalte2;Hinweis (opt.)<br>
 Zeile1a;Zeile1b<br>
-<code>!</code>Kritisch;Wert<br>
+<code>!</code>Kritisch;Wert&nbsp;<em>(nur Checkliste)</em><br>
 <br>
-Zeile mit einem Feld = neues Kapitel
+Zeile mit 1 Feld = neues Kapitel<br>
+Trennzeichen: <code>;</code> <code>,</code> Tab
   </div>
 </div>
 
 <!-- App Screen -->
 <div id="app-screen">
   <header>
-    <div class="title-block">
-      <h1 id="chapter-title">Checkliste</h1>
-      <div class="profile-label" id="profile-label"></div>
+    <div class="segmented">
+      <button id="seg-cl"   data-mode="checklist" onclick="switchMode('checklist')">
+        ✓ Checkliste <span class="count" id="cnt-cl">0</span>
+      </button>
+      <button id="seg-info" data-mode="info" onclick="switchMode('info')">
+        ⓘ Info <span class="count" id="cnt-info">0</span>
+      </button>
     </div>
     <div class="progress-pill" id="progress-text">0/0</div>
     <button class="icon-btn" id="wakelock-btn" onclick="toggleWakeLock()" title="Display wach halten">☀</button>
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Hell/Dunkel">🌙</button>
-    <button class="icon-btn" id="menu-trigger" onclick="openMenu()">⋮</button>
+    <button class="icon-btn" onclick="openMenu()">⋮</button>
   </header>
+
+  <div class="profile-bar" id="profile-bar">
+    <span class="mode-chip" id="mode-chip">CHECKLISTE</span>
+    <span id="profile-label"></span>
+  </div>
 
   <div class="tabs" id="tabs"></div>
   <div class="page-container" id="page-container"></div>
@@ -523,44 +556,45 @@ Zeile mit einem Feld = neues Kapitel
   </div>
 </div>
 
-<!-- Menu overlay -->
+<!-- Menu -->
 <div class="menu" id="menu">
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-sheet">
-    <div class="menu-section">Profil</div>
-    <div class="menu-item" onclick="openSaveDialog()">
-      <span class="menu-icon">💾</span> Als Profil speichern
+    <div class="menu-section">Profile</div>
+    <div class="menu-item" id="mi-save-cl" onclick="openSaveDialog('checklist')">
+      <span class="menu-icon">💾</span> Checkliste speichern
+    </div>
+    <div class="menu-item" id="mi-save-info" onclick="openSaveDialog('info')">
+      <span class="menu-icon">💾</span> Info speichern
     </div>
     <div class="menu-item" onclick="backToStart()">
       <span class="menu-icon">🏠</span> Zur Profilübersicht
     </div>
+
     <div class="menu-section">Einstellungen</div>
-    <div class="menu-item" onclick="toggleAutoAdvance()">
-      <span class="menu-icon">⏩</span> Auto-Weiter
+    <div class="menu-item" id="mi-autoadv" onclick="toggleAutoAdvance()">
+      <span class="menu-icon">⏩</span> Auto-Weiter (Checkliste)
       <span class="menu-badge" id="aa-badge">aus</span>
     </div>
-    <div class="menu-section">Seite</div>
-    <div class="menu-item" onclick="resetCurrentPage()">
-      <span class="menu-icon">↺</span> Aktuelle Seite zurücksetzen
+
+    <div class="menu-section">Aktionen</div>
+    <div class="menu-item" id="mi-reset-page" onclick="resetCurrentPage()">
+      <span class="menu-icon">↺</span> Seite zurücksetzen
     </div>
-    <div class="menu-item danger" onclick="resetAll()">
-      <span class="menu-icon">🗑</span> Alle zurücksetzen
+    <div class="menu-item danger" id="mi-reset-all" onclick="resetAll()">
+      <span class="menu-icon">🗑</span> Alle Häkchen zurücksetzen
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- Offline badge -->
 <div id="offline-badge">✈ Offline</div>
 
-<!-- Save Profile bottom sheet -->
 <div class="dialog-overlay" id="save-dialog" onclick="onOverlayClick(event)">
   <div class="dialog">
     <div class="dialog-handle"></div>
-    <h3>Profil speichern</h3>
-    <p>Name für diese Checkliste:</p>
+    <h3 id="save-dialog-title">Profil speichern</h3>
+    <p>Name für dieses Profil:</p>
     <input type="text" id="save-name" placeholder="z.B. Arcus M D-KJRR" maxlength="60">
     <div class="dialog-buttons">
       <button class="btn secondary" onclick="closeSaveDialog()">Abbrechen</button>
@@ -570,152 +604,133 @@ Zeile mit einem Feld = neues Kapitel
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  Service Worker Registration
-// ═══════════════════════════════════════════════════
-let swRegistration = null;
-let pendingWorker = null;
-
+// ═══ Service Worker ═══
+let swRegistration = null, pendingWorker = null;
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       swRegistration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
-      console.log('[App] SW registered, scope:', swRegistration.scope);
-
-      // Listen for new SW waiting to activate
       swRegistration.addEventListener('updatefound', () => {
-        const newWorker = swRegistration.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New SW installed — show update banner
-            pendingWorker = newWorker;
+        const nw = swRegistration.installing;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            pendingWorker = nw;
             document.getElementById('update-banner').classList.add('show');
           }
         });
       });
-
-      // If SW already waiting when page loads
       if (swRegistration.waiting && navigator.serviceWorker.controller) {
         pendingWorker = swRegistration.waiting;
         document.getElementById('update-banner').classList.add('show');
       }
-
-      // Reload when new SW takes control
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) { refreshing = true; window.location.reload(); }
       });
-
-    } catch (err) {
-      console.warn('[App] SW registration failed:', err);
-    }
+    } catch (e) { console.warn('SW failed', e); }
   });
 }
+function applyUpdate() { pendingWorker?.postMessage({ type: 'SKIP_WAITING' }); }
 
-function applyUpdate() {
-  if (pendingWorker) {
-    pendingWorker.postMessage({ type: 'SKIP_WAITING' });
-  }
-}
-
-// ═══════════════════════════════════════════════════
-//  PWA Install Prompt
-// ═══════════════════════════════════════════════════
+// ═══ Install prompt + online status ═══
 let deferredInstallPrompt = null;
-
 window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  // Only show if not already installed / dismissed
-  if (!localStorage.getItem('installDismissed')) {
+  e.preventDefault(); deferredInstallPrompt = e;
+  if (!localStorage.getItem('installDismissed'))
     document.getElementById('install-prompt').classList.add('show');
-  }
 });
-
 window.addEventListener('appinstalled', () => {
   document.getElementById('install-prompt').classList.remove('show');
-  deferredInstallPrompt = null;
-  showToast('App installiert ✓');
+  deferredInstallPrompt = null; showToast('App installiert ✓');
 });
-
 async function triggerInstall() {
   if (!deferredInstallPrompt) return;
   deferredInstallPrompt.prompt();
   const { outcome } = await deferredInstallPrompt.userChoice;
-  if (outcome === 'accepted') {
-    document.getElementById('install-prompt').classList.remove('show');
-  }
+  if (outcome === 'accepted') document.getElementById('install-prompt').classList.remove('show');
   deferredInstallPrompt = null;
 }
-
 function dismissInstall() {
   document.getElementById('install-prompt').classList.remove('show');
   localStorage.setItem('installDismissed', '1');
 }
-
-// ═══════════════════════════════════════════════════
-//  Online / Offline Detection
-// ═══════════════════════════════════════════════════
 function updateOnlineStatus() {
-  const badge = document.getElementById('offline-badge');
-  if (!navigator.onLine) { badge.classList.add('show'); }
-  else { badge.classList.remove('show'); }
+  document.getElementById('offline-badge').classList.toggle('show', !navigator.onLine);
 }
-window.addEventListener('online',  updateOnlineStatus);
+window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
-// ═══════════════════════════════════════════════════
-//  State
-// ═══════════════════════════════════════════════════
-let pages = [];
-let currentPage = 0;
-let currentProfileId = null;
-let currentProfileName = '';
+// ═══ State ═══
+const sections = {
+  checklist: { pages: [], currentPage: 0, profileId: null, profileName: '' },
+  info:      { pages: [], currentPage: 0, profileId: null, profileName: '' }
+};
+let mode = 'checklist';
 let settings = { theme: 'dark', autoAdvance: false };
 let wakeLock = null;
 
-const SESSION_KEY  = 'checklist-session-v3';
-const PROFILES_KEY = 'checklist-profiles-v3';
-const SETTINGS_KEY = 'checklist-settings-v3';
+const SESSION_KEY  = 'checklist-session-v4';
+const PROFILES_KEY = 'checklist-profiles-v4';
+const SETTINGS_KEY = 'checklist-settings-v4';
 
-// ── Storage helpers ──────────────────────────────────
-function lsGet(k, fb) {
-  try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; }
-}
-function lsSet(k, v) {
-  try { localStorage.setItem(k, JSON.stringify(v)); } catch {}
-}
+function cur() { return sections[mode]; }
 
-function saveSession() {
-  lsSet(SESSION_KEY, {
-    pages: pages.map(p => ({
+// ── Storage ──
+function lsGet(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch { return fb; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+function serializeSection(s) {
+  return {
+    pages: s.pages.map(p => ({
       title: p.title, headerRow: p.headerRow,
       rows: p.rows, critical: p.critical, hints: p.hints,
       checked: [...p.checked]
     })),
-    currentPage, profileId: currentProfileId, profileName: currentProfileName
+    currentPage: s.currentPage,
+    profileId: s.profileId,
+    profileName: s.profileName
+  };
+}
+function deserializeSection(data) {
+  return {
+    pages: (data.pages || []).map(p => ({
+      ...p,
+      critical: p.critical || p.rows.map(() => false),
+      hints:    p.hints    || p.rows.map(() => ''),
+      checked: new Set(p.checked || [])
+    })),
+    currentPage: data.currentPage || 0,
+    profileId: data.profileId || null,
+    profileName: data.profileName || ''
+  };
+}
+
+function saveSession() {
+  lsSet(SESSION_KEY, {
+    checklist: serializeSection(sections.checklist),
+    info:      serializeSection(sections.info),
+    mode
   });
 }
 function loadSession() {
   const d = lsGet(SESSION_KEY, null);
-  if (!d?.pages) return false;
-  pages = d.pages.map(p => ({ ...p, checked: new Set(p.checked) }));
-  currentPage = d.currentPage || 0;
-  currentProfileId = d.profileId || null;
-  currentProfileName = d.profileName || '';
-  return pages.length > 0;
+  if (!d) return false;
+  if (d.checklist) sections.checklist = deserializeSection(d.checklist);
+  if (d.info)      sections.info      = deserializeSection(d.info);
+  mode = d.mode || 'checklist';
+  return sections.checklist.pages.length > 0 || sections.info.pages.length > 0;
 }
 function saveSettings() { lsSet(SETTINGS_KEY, settings); }
 function loadSettings() {
   Object.assign(settings, lsGet(SETTINGS_KEY, {}));
-  applyTheme(false);
-  const badge = document.getElementById('aa-badge');
-  badge.textContent = settings.autoAdvance ? 'an' : 'aus';
-  badge.classList.toggle('on', settings.autoAdvance);
+  applyTheme();
+  const b = document.getElementById('aa-badge');
+  b.textContent = settings.autoAdvance ? 'an' : 'aus';
+  b.classList.toggle('on', settings.autoAdvance);
 }
 
-// ── Profiles ─────────────────────────────────────────
+// ── Profiles ──
 function getProfiles() { return lsGet(PROFILES_KEY, []); }
 function setProfiles(v) { lsSet(PROFILES_KEY, v); }
 
@@ -730,16 +745,20 @@ function renderProfileList() {
   hd.className = 'profile-list-header';
   hd.innerHTML = '<h3>Gespeicherte Profile</h3>';
   box.appendChild(hd);
-  profiles.slice().reverse().forEach(p => {
+  profiles.slice().sort((a,b) => (b.updated||0) - (a.updated||0)).forEach(p => {
     const el = document.createElement('div');
     el.className = 'profile-item';
     const pg = p.data.pages.length;
     const ro = p.data.pages.reduce((a, x) => a + x.rows.length, 0);
+    const kind = p.kind || 'checklist';
+    const iconCls = kind === 'info' ? 'info' : 'cl';
+    const iconCh  = kind === 'info' ? 'ⓘ' : '✓';
+    const kindLbl = kind === 'info' ? 'Info' : 'Checkliste';
     el.innerHTML = `
-      <div class="p-icon">✈</div>
+      <div class="p-icon ${iconCls}">${iconCh}</div>
       <div class="p-info">
         <div class="p-name"></div>
-        <div class="p-meta">${pg} Kapitel · ${ro} Punkte</div>
+        <div class="p-meta">${kindLbl} · ${pg} Kapitel · ${ro} Zeilen</div>
       </div>
       <button class="p-del" title="Löschen">×</button>`;
     el.querySelector('.p-name').textContent = p.name;
@@ -760,16 +779,31 @@ function renderProfileList() {
 function loadProfile(id) {
   const p = getProfiles().find(x => x.id === id);
   if (!p) return;
-  pages = p.data.pages.map(pg => ({ ...pg, checked: new Set(pg.data_checked || []) }));
-  currentPage = p.data.currentPage || 0;
-  currentProfileId = id; currentProfileName = p.name;
-  showApp(); showToast(`"${p.name}" geladen`);
+  const kind = p.kind || 'checklist';
+  const section = sections[kind];
+  section.pages = p.data.pages.map(pg => ({
+    ...pg,
+    critical: pg.critical || pg.rows.map(() => false),
+    hints:    pg.hints    || pg.rows.map(() => ''),
+    checked: new Set(pg.data_checked || [])
+  }));
+  section.currentPage = p.data.currentPage || 0;
+  section.profileId = id;
+  section.profileName = p.name;
+  mode = kind;
+  showApp();
+  showToast(`"${p.name}" geladen`);
 }
 
-// ── Save dialog ───────────────────────────────────────
-function openSaveDialog() {
+// ── Save dialog ──
+let saveDialogKind = 'checklist';
+function openSaveDialog(kind) {
+  saveDialogKind = kind;
+  if (!sections[kind].pages.length) { showToast('Nichts zu speichern'); closeMenu(); return; }
   closeMenu();
-  document.getElementById('save-name').value = currentProfileName || '';
+  document.getElementById('save-dialog-title').textContent =
+    kind === 'info' ? 'Info-Profil speichern' : 'Checklisten-Profil speichern';
+  document.getElementById('save-name').value = sections[kind].profileName || '';
   document.getElementById('save-dialog').classList.add('open');
   setTimeout(() => document.getElementById('save-name').focus(), 200);
 }
@@ -779,25 +813,29 @@ function onOverlayClick(e) { if (e.target.id === 'save-dialog') closeSaveDialog(
 function saveAsProfile() {
   const name = document.getElementById('save-name').value.trim();
   if (!name) { showToast('Bitte Namen eingeben'); return; }
+  const kind = saveDialogKind;
+  const section = sections[kind];
   const all = getProfiles();
-  const idx = all.findIndex(p => p.name === name);
+  const idx = all.findIndex(p => p.name === name && (p.kind || 'checklist') === kind);
   const id = idx >= 0 ? all[idx].id : 'p' + Date.now();
   const entry = {
-    id, name, updated: Date.now(),
+    id, name, kind, updated: Date.now(),
     data: {
-      pages: pages.map(p => ({
+      pages: section.pages.map(p => ({
         title: p.title, headerRow: p.headerRow,
         rows: p.rows, critical: p.critical, hints: p.hints,
         data_checked: [...p.checked]
       })),
-      currentPage
+      currentPage: section.currentPage
     }
   };
   if (idx >= 0) all[idx] = entry; else all.push(entry);
   setProfiles(all);
-  currentProfileId = id; currentProfileName = name;
-  document.getElementById('profile-label').textContent = name;
-  closeSaveDialog(); showToast(`"${name}" gespeichert`);
+  section.profileId = id;
+  section.profileName = name;
+  if (mode === kind) updateProfileBar();
+  closeSaveDialog();
+  showToast(`"${name}" gespeichert`);
 }
 
 document.getElementById('save-name').addEventListener('keydown', e => {
@@ -805,9 +843,7 @@ document.getElementById('save-name').addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSaveDialog();
 });
 
-// ═══════════════════════════════════════════════════
-//  CSV Parser
-// ═══════════════════════════════════════════════════
+// ═══ CSV parsing ═══
 function parseCSV(text) {
   const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   let sep = ';';
@@ -832,52 +868,48 @@ function parseLine(line, sep) {
   return res.map(s => s.trim());
 }
 
-// ═══════════════════════════════════════════════════
-//  Build pages
-// ═══════════════════════════════════════════════════
-function buildPages(rows) {
-  const result = []; let cur = null;
+function buildPages(rows, { allowCritical = true } = {}) {
+  const result = []; let c = null;
   for (const r of rows) {
-    const ne = r.filter(c => c !== '');
+    const ne = r.filter(x => x !== '');
     if (ne.length === 1) {
-      if (cur) result.push(cur);
-      cur = { title: ne[0], headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
+      if (c) result.push(c);
+      c = { title: ne[0], headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
     } else {
-      if (!cur) cur = { title: 'Kapitel 1', headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
-      if (cur.headerRow === null && cur.rows.length === 0) {
-        cur.headerRow = r.slice(0, 2);
+      if (!c) c = { title: 'Kapitel 1', headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
+      if (c.headerRow === null && c.rows.length === 0) {
+        c.headerRow = r.slice(0, 2);
       } else {
-        const isCrit = r[0].startsWith('!');
+        const isCrit = allowCritical && r[0].startsWith('!');
         const cleaned = [...r];
         if (isCrit) cleaned[0] = cleaned[0].slice(1).trim();
-        const hint = cleaned.length > 2 ? cleaned.slice(2).filter(c=>c).join(' · ') : '';
-        cur.rows.push(cleaned.slice(0, 2));
-        cur.critical.push(isCrit);
-        cur.hints.push(hint);
+        const hint = cleaned.length > 2 ? cleaned.slice(2).filter(x=>x).join(' · ') : '';
+        c.rows.push(cleaned.slice(0, 2));
+        c.critical.push(isCrit);
+        c.hints.push(hint);
       }
     }
   }
-  if (cur) result.push(cur);
+  if (c) result.push(c);
   return result;
 }
 
-// ═══════════════════════════════════════════════════
-//  Render
-// ═══════════════════════════════════════════════════
+// ═══ Render ═══
 function renderTabs() {
+  const section = cur();
   const tabs = document.getElementById('tabs');
   tabs.innerHTML = '';
-  pages.forEach((p, i) => {
+  section.pages.forEach((p, i) => {
     const t = document.createElement('div');
-    t.className = 'tab' + (i === currentPage ? ' active' : '');
-    if (p.rows.length > 0) {
+    t.className = 'tab' + (i === section.currentPage ? ' active' : '');
+    if (mode === 'checklist' && p.rows.length > 0) {
       if (p.checked.size === p.rows.length) t.classList.add('complete');
       else if (p.checked.size > 0) t.classList.add('partial');
     }
     const dot = document.createElement('span'); dot.className = 'dot';
     const lbl = document.createElement('span'); lbl.textContent = p.title;
     t.appendChild(dot); t.appendChild(lbl);
-    t.onclick = () => { currentPage = i; render(); };
+    t.onclick = () => { section.currentPage = i; render(); };
     tabs.appendChild(t);
   });
   setTimeout(() => {
@@ -887,19 +919,36 @@ function renderTabs() {
 }
 
 function renderPage() {
+  const section = cur();
   const container = document.getElementById('page-container');
   container.innerHTML = '';
-  const p = pages[currentPage];
-  if (!p) return;
+  const p = section.pages[section.currentPage];
+
+  if (!p) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = mode === 'info'
+      ? '<div class="icon">ⓘ</div><p>Keine Info-Seiten geladen.</p><p class="hint">Zur Profilübersicht → Info-CSV laden oder Demo starten.</p>'
+      : '<div class="icon">✓</div><p>Keine Checkliste geladen.</p><p class="hint">Zur Profilübersicht → CSV laden oder Demo starten.</p>';
+    container.appendChild(empty);
+    return;
+  }
 
   const div = document.createElement('div'); div.className = 'page active';
 
-  const title = document.createElement('div'); title.className = 'page-title';
-  title.textContent = p.title; div.appendChild(title);
+  const title = document.createElement('div');
+  title.className = 'page-title';
+  title.textContent = p.title;
+  div.appendChild(title);
 
-  const meta = document.createElement('div'); meta.className = 'page-meta';
-  const pct = p.rows.length > 0 ? Math.round(p.checked.size / p.rows.length * 100) : 0;
-  meta.innerHTML = `<span>${p.checked.size} / ${p.rows.length}</span><div class="prog-bar"><div class="prog-bar-fill" style="width:${pct}%"></div></div><span>${pct}%</span>`;
+  const meta = document.createElement('div');
+  meta.className = 'page-meta';
+  if (mode === 'checklist') {
+    const pct = p.rows.length > 0 ? Math.round(p.checked.size / p.rows.length * 100) : 0;
+    meta.innerHTML = `<span>${p.checked.size} / ${p.rows.length}</span><div class="prog-bar"><div class="prog-bar-fill" style="width:${pct}%"></div></div><span>${pct}%</span>`;
+  } else {
+    meta.classList.add('hidden');
+  }
   div.appendChild(meta);
 
   const table = document.createElement('table');
@@ -913,24 +962,24 @@ function renderPage() {
     const tr = document.createElement('tr');
     tr.className = 'row';
     tr.dataset.ri = ri;
-    if (p.checked.has(ri)) tr.classList.add('checked');
-    if (p.critical[ri]) tr.classList.add('critical');
+    if (mode === 'checklist' && p.checked.has(ri)) tr.classList.add('checked');
+    if (mode === 'checklist' && p.critical[ri])   tr.classList.add('critical');
     row.forEach(c => {
       const td = document.createElement('td');
       td.textContent = c;
       tr.appendChild(td);
     });
     while (tr.cells.length < 2) { const td = document.createElement('td'); tr.appendChild(td); }
-    tr.onclick = () => toggleRow(ri);
+    if (mode === 'checklist') tr.onclick = () => toggleRow(ri);
     table.appendChild(tr);
 
     if (p.hints[ri]) {
       const hr2 = document.createElement('tr');
       hr2.dataset.ri = ri;
-      hr2.className = 'hint-row' + (p.checked.has(ri) ? ' checked' : '') + (p.critical[ri] ? ' critical' : '');
+      hr2.className = 'hint-row' + (mode === 'checklist' && p.checked.has(ri) ? ' checked' : '') + (mode === 'checklist' && p.critical[ri] ? ' critical' : '');
       const hd = document.createElement('td'); hd.colSpan = 2;
       hd.textContent = p.hints[ri]; hr2.appendChild(hd);
-      hr2.onclick = () => toggleRow(ri);
+      if (mode === 'checklist') hr2.onclick = () => toggleRow(ri);
       tr.style.borderBottom = 'none';
       table.appendChild(hr2);
     }
@@ -941,48 +990,82 @@ function renderPage() {
   container.scrollTop = 0;
 }
 
+function updateSegmentedCounts() {
+  document.getElementById('cnt-cl').textContent   = sections.checklist.pages.length;
+  document.getElementById('cnt-info').textContent = sections.info.pages.length;
+  document.getElementById('seg-cl').classList.toggle('active',   mode === 'checklist');
+  document.getElementById('seg-info').classList.toggle('active', mode === 'info');
+}
+
+function updateProfileBar() {
+  const section = cur();
+  const bar = document.getElementById('profile-bar');
+  const chip = document.getElementById('mode-chip');
+  const lbl = document.getElementById('profile-label');
+  if (!section.profileName && section.pages.length === 0) {
+    bar.classList.add('hidden');
+    return;
+  }
+  bar.classList.remove('hidden');
+  chip.textContent = mode === 'info' ? 'INFO' : 'CHECKLISTE';
+  chip.classList.toggle('info', mode === 'info');
+  lbl.textContent = section.profileName || '—';
+}
+
 function render() {
-  const p = pages[currentPage];
-  document.getElementById('chapter-title').textContent = p?.title || 'Checkliste';
-  document.getElementById('profile-label').textContent = currentProfileName || '';
+  document.body.dataset.mode = mode;
+  const section = cur();
+  const p = section.pages[section.currentPage];
+
   const pill = document.getElementById('progress-text');
-  pill.textContent = p ? `${p.checked.size}/${p.rows.length}` : '0/0';
-  pill.classList.toggle('complete', p?.rows.length > 0 && p.checked.size === p.rows.length);
-  document.getElementById('prev-btn').disabled = currentPage === 0;
-  document.getElementById('next-btn').disabled = currentPage >= pages.length - 1;
+  if (mode === 'checklist' && p) {
+    pill.classList.remove('hidden');
+    pill.textContent = `${p.checked.size}/${p.rows.length}`;
+    pill.classList.toggle('complete', p.rows.length > 0 && p.checked.size === p.rows.length);
+  } else {
+    pill.classList.add('hidden');
+  }
+
+  document.getElementById('prev-btn').disabled = section.currentPage === 0;
+  document.getElementById('next-btn').disabled = section.currentPage >= section.pages.length - 1;
+
+  document.getElementById('mi-save-cl').classList.toggle('disabled',   sections.checklist.pages.length === 0);
+  document.getElementById('mi-save-info').classList.toggle('disabled', sections.info.pages.length === 0);
+  document.getElementById('mi-reset-page').classList.toggle('disabled', mode === 'info' || !p);
+  document.getElementById('mi-reset-all').classList.toggle('disabled',  mode === 'info' || section.pages.length === 0);
+  document.getElementById('mi-autoadv').classList.toggle('disabled', mode === 'info');
+
+  updateSegmentedCounts();
+  updateProfileBar();
   renderTabs();
   renderPage();
   saveSession();
 }
 
 function toggleRow(ri) {
-  const p = pages[currentPage];
+  if (mode !== 'checklist') return;
+  const section = cur();
+  const p = section.pages[section.currentPage];
   const was = p.checked.has(ri);
   was ? p.checked.delete(ri) : p.checked.add(ri);
 
-  // ── In-place DOM update (no scroll reset) ──────────────
-  // Find all <tr> elements belonging to row index ri via data attribute
   const container = document.getElementById('page-container');
   container.querySelectorAll(`tr[data-ri="${ri}"]`).forEach(tr => {
     tr.classList.toggle('checked', !was);
   });
 
-  // Update progress pill
   const pill = document.getElementById('progress-text');
   pill.textContent = `${p.checked.size}/${p.rows.length}`;
   pill.classList.toggle('complete', p.rows.length > 0 && p.checked.size === p.rows.length);
 
-  // Update progress bar and subtitle counter inside page
   const pct = p.rows.length > 0 ? Math.round(p.checked.size / p.rows.length * 100) : 0;
   const fill = container.querySelector('.prog-bar-fill');
   if (fill) fill.style.width = pct + '%';
-  const metaSpans = container.querySelectorAll('.page-meta span');
-  if (metaSpans[0]) metaSpans[0].textContent = `${p.checked.size} / ${p.rows.length}`;
-  if (metaSpans[1]) metaSpans[1].textContent = pct + '%';
+  const ms = container.querySelectorAll('.page-meta span');
+  if (ms[0]) ms[0].textContent = `${p.checked.size} / ${p.rows.length}`;
+  if (ms[1]) ms[1].textContent = pct + '%';
 
-  // Update tab dot
-  const tabs = document.getElementById('tabs');
-  const tab = tabs.querySelectorAll('.tab')[currentPage];
+  const tab = document.getElementById('tabs').querySelectorAll('.tab')[section.currentPage];
   if (tab) {
     tab.classList.toggle('partial',  p.checked.size > 0 && p.checked.size < p.rows.length);
     tab.classList.toggle('complete', p.rows.length > 0 && p.checked.size === p.rows.length);
@@ -992,33 +1075,58 @@ function toggleRow(ri) {
   if (navigator.vibrate) navigator.vibrate(was ? 8 : [10, 18, 10]);
 
   if (settings.autoAdvance && !was && p.rows.length > 0 &&
-      p.checked.size === p.rows.length && currentPage < pages.length - 1) {
+      p.checked.size === p.rows.length && section.currentPage < section.pages.length - 1) {
     setTimeout(() => { showToast('Kapitel fertig ✓'); nextPage(); }, 700);
   }
 }
 
-function nextPage() { if (currentPage < pages.length - 1) { currentPage++; render(); } }
-function prevPage() { if (currentPage > 0) { currentPage--; render(); } }
-function resetCurrentPage() { pages[currentPage].checked.clear(); closeMenu(); render(); showToast('Seite zurückgesetzt'); }
-function resetAll() { if (!confirm('Alle Häkchen zurücksetzen?')) { closeMenu(); return; } pages.forEach(p => p.checked.clear()); closeMenu(); render(); showToast('Alles zurückgesetzt'); }
-function backToStart() { closeMenu(); saveSession(); document.getElementById('app-screen').classList.remove('active'); document.getElementById('upload-screen').style.display = 'flex'; renderProfileList(); }
+function switchMode(newMode) {
+  if (newMode === mode) {
+    cur().currentPage = 0;
+    render();
+    return;
+  }
+  mode = newMode;
+  cur().currentPage = 0;
+  render();
+}
 
-// ── Menu ─────────────────────────────────────────────
+function nextPage() { const s = cur(); if (s.currentPage < s.pages.length - 1) { s.currentPage++; render(); } }
+function prevPage() { const s = cur(); if (s.currentPage > 0) { s.currentPage--; render(); } }
+
+function resetCurrentPage() {
+  if (mode !== 'checklist') return;
+  const s = cur();
+  const p = s.pages[s.currentPage];
+  if (p) { p.checked.clear(); render(); showToast('Seite zurückgesetzt'); }
+  closeMenu();
+}
+function resetAll() {
+  if (mode !== 'checklist') return;
+  if (!confirm('Alle Häkchen dieser Checkliste zurücksetzen?')) { closeMenu(); return; }
+  cur().pages.forEach(p => p.checked.clear());
+  closeMenu(); render(); showToast('Alles zurückgesetzt');
+}
+function backToStart() {
+  closeMenu(); saveSession();
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('upload-screen').style.display = 'flex';
+  renderProfileList();
+}
+
 function openMenu() { document.getElementById('menu').classList.add('open'); }
 function closeMenu() { document.getElementById('menu').classList.remove('open'); }
 
-// ── Theme ─────────────────────────────────────────────
 function toggleTheme() {
   settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-  applyTheme(true); saveSettings();
+  applyTheme(); saveSettings();
 }
-function applyTheme(animate) {
+function applyTheme() {
   document.documentElement.setAttribute('data-theme', settings.theme);
   document.getElementById('theme-btn').textContent = settings.theme === 'dark' ? '☀' : '🌙';
   document.querySelector('#theme-color-meta')?.setAttribute('content', settings.theme === 'dark' ? '#1a1a1a' : '#f2f2f7');
 }
 
-// ── Auto-advance ──────────────────────────────────────
 function toggleAutoAdvance() {
   settings.autoAdvance = !settings.autoAdvance;
   const b = document.getElementById('aa-badge');
@@ -1028,23 +1136,18 @@ function toggleAutoAdvance() {
   showToast('Auto-Weiter ' + (settings.autoAdvance ? 'aktiv' : 'deaktiviert'));
 }
 
-// ── Wake Lock ──────────────────────────────────────────
 async function toggleWakeLock() {
   const btn = document.getElementById('wakelock-btn');
   if (!('wakeLock' in navigator)) { showToast('Nicht unterstützt'); return; }
   if (wakeLock) {
     try { await wakeLock.release(); } catch {}
-    wakeLock = null;
-    btn.classList.remove('active');
+    wakeLock = null; btn.classList.remove('active');
     showToast('Display kann wieder dimmen');
   } else {
     try {
       wakeLock = await navigator.wakeLock.request('screen');
-      btn.classList.add('active');
-      showToast('Display bleibt wach ☀');
-      wakeLock.addEventListener('release', () => {
-        wakeLock = null; btn.classList.remove('active');
-      });
+      btn.classList.add('active'); showToast('Display bleibt wach ☀');
+      wakeLock.addEventListener('release', () => { wakeLock = null; btn.classList.remove('active'); });
     } catch { showToast('Wake Lock nicht möglich'); }
   }
 }
@@ -1054,7 +1157,6 @@ document.addEventListener('visibilitychange', async () => {
   }
 });
 
-// ── Toast ─────────────────────────────────────────────
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1063,23 +1165,29 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-// ── File upload ────────────────────────────────────────
-document.getElementById('file-input').addEventListener('change', e => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    const rows = parseCSV(ev.target.result);
-    pages = buildPages(rows);
-    if (!pages.length) { alert('Keine Kapitel gefunden.'); return; }
-    currentPage = 0; currentProfileId = null;
-    currentProfileName = f.name.replace(/\.(csv|txt)$/i, '');
-    showApp();
-  };
-  r.readAsText(f, 'UTF-8');
-  e.target.value = '';
-});
+function handleFileUpload(inputId, kind) {
+  document.getElementById(inputId).addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const rows = parseCSV(ev.target.result);
+      const pages = buildPages(rows, { allowCritical: kind === 'checklist' });
+      if (!pages.length) { alert('Keine Kapitel gefunden.'); return; }
+      const section = sections[kind];
+      section.pages = pages;
+      section.currentPage = 0;
+      section.profileId = null;
+      section.profileName = f.name.replace(/\.(csv|txt)$/i, '');
+      mode = kind;
+      showApp();
+    };
+    r.readAsText(f, 'UTF-8');
+    e.target.value = '';
+  });
+}
+handleFileUpload('file-input-cl',   'checklist');
+handleFileUpload('file-input-info', 'info');
 
-// ── Swipe ──────────────────────────────────────────────
 let tx = 0, ty = 0, tt = 0;
 const pc = document.getElementById('page-container');
 pc.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; tt = Date.now(); }, { passive: true });
@@ -1091,17 +1199,14 @@ pc.addEventListener('touchend', e => {
   }
 }, { passive: true });
 
-// ── Screens ────────────────────────────────────────────
 function showApp() {
   document.getElementById('upload-screen').style.display = 'none';
   document.getElementById('app-screen').classList.add('active');
   render();
 }
 
-// ═══════════════════════════════════════════════════
-//  Demo CSV — Arcus M D-KJRR (Version 8)
-// ═══════════════════════════════════════════════════
-const DEMO = `Aufbau
+// ═══ Demo content ═══
+const CHECKLIST_DEMO = `Aufbau
 Schritt;Aktion
 linker Flügel zuerst;
 Aufbauhilfe;Nähe Fahrwerk
@@ -1156,25 +1261,6 @@ Kommandos;
 Haubennotabwurf;zeigen
 Gurte, Ausstieg;zeigen
 Fallschirm;zeigen
-Tanken / Öl
-Treibstoff;Menge / Zeit
-Sup. blfr. ≥ ROZ 95;16,0 L / 15,7 L / 00:23
-AVGAS 100LL;28,9 L / 28,2 L / 01:09
-Verbrauch;24,5 L/h
-Zweitaktöl;1:50 = 0,4 L Öl / 20 L
-Öl;Castrol ACT>EVO / Super Two Stroke
-Spec.;JASO FC oder FD
-Gewichte
-Position;Wert
-Leer;515 kg
-Kraftstoff 16/29 L;11,5 / 20,8 kg
-Gepäckfach;2 kg max.
-Pilot vorne;70 – 115 kg
-Pilot hinten;115 kg max.
-Zuladung;285 kg max.
-MTOW;800 kg = 51 kg/m²
-Flächenbelastung (1 PIC);40 kg/m²
-Flächenbelastung (2 PIC);46 kg/m²
 vor Start
 Punkt;Zustand
 Kuller ab;check
@@ -1253,97 +1339,129 @@ Hauptschalter;aus (alle 3)
 Securing Airplane
 Punkt;Aktion
 Kuller;ab
-Haubenbezug;anbringen
-Geschwindigkeiten
-Bezeichnung;km/h
-VROT – Abheben;85
-VY – beste Steigrate (schnell hoch);95
-VT – F-Schlepp;110 – 120
-VT braun 850 daN;max. 180
-VA – Manövergeschwindigkeit;180
-VNE – never exceed;280
-VFE – max. Klappen;180
-VLO – max. Gear Speed;180
-VX – ger. Sinken / max. Weite;110 – 120
-VPO – Prop. operation;90 – 120
-VAPP – Anflug;105
-ELT 406 MHz
-Punkt;Aktion
-Einschalten;
-Test 121.5 MHz;H+05, max. 3 beeps
-Equipment – Motor
-Item;Inhalt
-2x 20 L Kanister Treibstoff;AVGAS + 0,4 L Zweitaktöl
-2-Takt Öl;2 x 1 L
-Behälter 13 L;
-Tankschlauch mit Benzinfilter;
-Equipment – Strom
-Item;Zustand
-Ladegerät Flugzeug;
-Ladegerät Wasserballastpumpe;
-220 V Kabel;
-Equipment – Wasserballast
-Item;Zustand
-Kanister für Wasser;
-Füllschlauch mit Filter;
-Pumpe für Wasser;
-Batterie für Wasserpumpe;
-Equipment – Flugzeug
-Item;Zustand
-Klebeband;Vorhanden
-Flächenbezüge;Vorhanden
-Batterie C1 + C2;Vorhanden
-Sauerstoff
-Item;Zustand
-Flaschen;gefüllt
-LX 9000
-Funktion;Bedienung
-Aus;I/O > 4 sec drücken
-Lautstärke;● grün oben links
-Sollfahrt/Vario;weißer Schalter Knüppel
-Zoom;● blau unten links
-MC einstellen;● rot → Apt 1 → MC/BAL → ⊙
-Position Report;● rot → Info 1 → ⊙ → Info 2
-Nearest Airport;● rot → Near → ggf. SORT
-FRQ Landefeld;● rot → Apt 1 → ⊙ → Apt 3
-Waypoint speichern;● rot → Apt 1 → MARK
-FLARM Setup;Competition mode / Reduce warnings
-QNH anpassen;Setup → QNH → SELECT
-Pilot anlegen;Setup → Flight Recorder → 10 sec
-Funkgerät
-Taste;Funktion
-1x kurz;Standard
-2x kurz;Direkt Eingabe
-3x kurz;Kanalwahl
-Lang;Pilots Menü (Helligkeit, SQL)
-FRQ lang;25/8.33 KHz umschalten
-FRQ kurz;speichern
-MDE/STO kurz;FRQ wechseln
-MDE/STO lang;Scan Mode
-SQL kurz;Squelch on/off
-SQL lang;Intercom (IC VOL, IC VOX)
-FRQ-Knopf;Drücken + drehen
-Funkfrequenzen
+Haubenbezug;anbringen`;
+
+const INFO_DEMO = `Notfrequenzen
+Funktion;MHz
+Notfrequenz;121,500
+Segelflug-Not;123,100
+ELT Test;121,500
+Flugplatz-Frequenzen (Heimat)
 Station;MHz
-Langen Info;128,950
-Segelflug ATIS;119,325
 Wächtersberg;123,475
 Haiterbach;123,350
 Deckenpfronn;130,125
 Musbach;130,125
 Eutingen;129,975
-Poltringen;123,050`;
+Poltringen;123,050
+Info / FIS Deutschland
+Station;MHz
+Langen Information;128,950
+Segelflug ATIS;119,325
+Österreich – Information
+Station;MHz
+Wien Information Ost;118,525
+Wien Information Nord;134,625
+Wien Information Süd;124,400
+Langen Information (AT);119,825 / 129,875
+Österreich – Radar
+Station;MHz
+Wien Radar;134,675 / 130,075
+Graz Radar;119,300
+Zeltweg Radar;129,480 / 132,655
+Klagenfurt Radar;123,325
+Salzburg Radar;123,725
+Innsbruck Radar;128,975
+Linz Radar;125,685
+Aigen Radar;118,005
+Alps Radar;119,225
+Österreich – Tower
+Station;MHz
+Neustadt Tower;123,255
+Graz Turm;118,200
+Zeltweg Tower;135,380 / 118,705
+Zeltweg Flugplatz;123,505
+Klagenfurt Tower;118,100
+Innsbruck Tower;120,100
+Innsbruck ATIS;126,030
+Samedan;135,325
+Arcus M – Geschwindigkeiten
+Bezeichnung;km/h
+VROT (Abheben);85
+VY (beste Steigrate);95
+VT (F-Schlepp);110 – 120
+VT (braun, 850 daN);max. 180
+VA (Manövergeschw.);180
+VNE (never exceed);280
+VFE (max. Klappen);180
+VLO (max. Gear Speed);180
+VX (ger. Sinken / max. Weite);110 – 120
+VPO (Prop. operation);90 – 120
+VAPP (Anflug);105
+Arcus M – Gewichte
+Position;Wert
+Leergewicht;515 kg
+Kraftstoff (16 / 29 L);11,5 / 20,8 kg
+Gepäckfach;max. 2 kg
+Pilot vorne;70 – 115 kg
+Pilot hinten;max. 115 kg
+Zuladung;max. 285 kg
+MTOW;800 kg (51 kg/m²)
+Flächenbelastung (1 PIC);40 kg/m²
+Flächenbelastung (2 PIC);46 kg/m²
+Arcus M – Kraftstoff
+Typ;Angabe
+Super bleifrei;≥ ROZ 95
+AVGAS;100 LL
+Tankvolumen;16 L + 28,9 L (Flügel)
+Verbrauch Reise;24,5 L/h
+Zweitakt-Mischung;1:50 (0,4 L / 20 L)
+Öl;Castrol ACT>EVO / Super Two Stroke
+Spezifikation;JASO FC oder FD
+LX 9000 – Tasten
+Aktion;Bedienung
+Aus;I/O > 4 sec
+Lautstärke;● grün oben links
+Zoom;● blau unten links
+MC einstellen;● rot → Apt 1 → MC/BAL
+Position Report;● rot → Info 1
+Nearest Airport;● rot → Near Airport
+QNH anpassen;Setup → QNH → SELECT
+Pilot anlegen;Setup → Flight Recorder
+Waypoint speichern;● rot → Apt 1 → MARK
+FLARM;Competition / Reduce warnings
+Funkgerät Becker – Tasten
+Taste;Funktion
+1x kurz;Standard
+2x kurz;Direkt Eingabe
+3x kurz;Kanalwahl
+Lang;Pilots Menü (Helligkeit, SQL)
+FRQ-Knopf lang;25 / 8,33 kHz umschalten
+FRQ-Knopf kurz;speichern
+MDE/STO kurz;FRQ wechseln
+MDE/STO lang;Scan Mode
+SQL kurz;Squelch on/off
+SQL lang;Intercom (IC VOL, IC VOX)
+FRQ-Drehknopf;Drücken + drehen`;
 
-function loadDemo() {
-  pages = buildPages(parseCSV(DEMO));
-  currentPage = 0; currentProfileId = null;
-  currentProfileName = 'Arcus M D-KJRR v8';
+function loadChecklistDemo() {
+  sections.checklist.pages = buildPages(parseCSV(CHECKLIST_DEMO), { allowCritical: true });
+  sections.checklist.currentPage = 0;
+  sections.checklist.profileId = null;
+  sections.checklist.profileName = 'Arcus M D-KJRR';
+  mode = 'checklist';
+  showApp();
+}
+function loadInfoDemo() {
+  sections.info.pages = buildPages(parseCSV(INFO_DEMO), { allowCritical: false });
+  sections.info.currentPage = 0;
+  sections.info.profileId = null;
+  sections.info.profileName = 'Frequenzen & Daten';
+  mode = 'info';
   showApp();
 }
 
-// ═══════════════════════════════════════════════════
-//  Init
-// ═══════════════════════════════════════════════════
+// ═══ Init ═══
 loadSettings();
 renderProfileList();
 if (loadSession()) showApp();
