@@ -1,32 +1,31 @@
 Funkfrequenzen
-Station,Frequenz
-Notfrequenz,121.500
-Neustadt West Radio,130.150
-Neustadt Tower,123.255
-Neustadt Ost Radio,122.650
-Police Radio,125.135
-Segelflug Quatsch,123.430 / 123.425
-Wien Information Ost,118.525 (9:00 – 21:00/ECET)
-Wien Information Nord,134.625
-Wien Information Süd,124.400
-Wien Radar,134.675 / 130.075
-Graz Radar,119.300
-Graz Turm,118.200
-Zeltweg Radar,129.480 (132.655) MHz
-Zeltweg Tower,135.380 (118.705) MHz
-Zeltweg Flugplatz,123.505
-Klagenfurt Tower,118.100
-Klagenfurt Radar,123.325
-Salzburg Radar,123.725
-Innsbruck Radar,128.975 (CTA Arlberg Ost) 12500ft bis FL165
-Innsbruck Tower,120.100
-Innsbruck ATIS,126.030 +43 5 17036631
-Linz Radar,125.685
-Aigen Radar,118.005
-Alps Radar,119.225 (CTA Arlberg West) ab 15500ft
-Langen Information,119.825 / 129.875
-Samedan,135.325
-
+Station;Frequenz
+Notfrequenz;121.500
+Neustadt Tower;123.255
+Neustadt West Radio;130.150
+Neustadt Ost Radio;122.650
+Police Radio;125.135
+Segelflug Quatsch;123.430 / 123.425
+Wien Information Ost;118.525 (9:00 – 21:00/ECET)
+Wien Information Nord;134.625
+Wien Information Süd;124.400
+Wien Radar;134.675 / 130.075
+Graz Radar;119.300
+Graz Turm;118.200
+Zeltweg Radar;129.480 (132.655) MHz
+Zeltweg Tower;135.380 (118.705) MHz
+Zeltweg Flugplatz;123.505
+Klagenfurt Tower;118.100
+Klagenfurt Radar;123.325
+Salzburg Radar;123.725
+Innsbruck Radar;128.975 (CTA Arlberg Ost) 12500ft bis FL165
+Innsbruck Tower;120.100
+Innsbruck ATIS;126.030 +43 5 17036631
+Linz Radar;125.685
+Aigen Radar;118.005
+Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
+Langen Information;119.825 / 129.875
+Samedan;135.325
 Arcus M – Geschwindigkeiten
 Bezeichnung;km/h
 VROT (Abheben);85
@@ -40,7 +39,6 @@ VLO (max. Gear Speed);180
 VX (ger. Sinken / max. Weite);110 – 120
 VPO (Prop. operation);90 – 120
 VAPP (Anflug);105
-
 Arcus M – Gewichte
 Position;Wert
 Leergewicht;576 kg
@@ -52,7 +50,6 @@ Zuladung;max. 285 kg
 MTOW;800 kg (51 kg/m²)
 Flächenbelastung (1 PIC);43 kg/m²
 Flächenbelastung (2 PIC);49 kg/m²
-
 Arcus M – Kraftstoff
 Typ;Angabe
 Super bleifrei;≥ ROZ 95
@@ -62,7 +59,6 @@ Verbrauch Reise;24,5 L/h
 Zweitakt-Mischung;1:50 (0,4 L Öl / 20 L)
 Öl;Castrol ACT>EVO / Super Two Stroke
 Spezifikation;JASO FC oder FD
-
 LX 9000 – Tasten
 Aktion;Bedienung
 Aus;I/O > 4 sec
@@ -77,7 +73,6 @@ Nearest Airport;● Near Airport
 Position Report;● Flugplatzliste → REPORT
 Waypoint speichern;● MARK
 Vario/Hawk;Setup → Audio → Vario/Hawk wählen
-
 Funkgerät Becker – Tasten
 Taste;Funktion
 1x kurz;Standard
@@ -91,7 +86,6 @@ MDE/STO lang;Scan Mode
 SQL kurz;Squelch on/off
 SQL lang;Intercom (IC VOL, IC VOX)
 FRQ-Drehknopf;Drücken + drehen
-
 Transponder
 Taste:Funktion
 I/O;Ein 0.5s/Aus 3s
