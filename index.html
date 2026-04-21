@@ -555,13 +555,13 @@
   <div class="btn-section-label">Checkliste</div>
   <div class="btn-row">
     <button class="btn" onclick="document.getElementById('file-input-cl').click()">📂 Checklisten-CSV</button>
-    <button class="btn secondary" onclick="loadChecklistDemo()">Demo (Arcus M D-KJRR)</button>
+    <button class="btn secondary" onclick="loadChecklistDemo()">Demo (Arcus M)</button>
   </div>
 
   <div class="btn-section-label">Info-Seiten</div>
   <div class="btn-row">
     <button class="btn info" onclick="document.getElementById('file-input-info').click()">📂 Info-CSV</button>
-    <button class="btn info-secondary" onclick="loadInfoDemo()">Demo (Frequenzen &amp; Daten)</button>
+    <button class="btn info-secondary" onclick="loadInfoDemo()">Demo (Arcus M)</button>
   </div>
 
   <div class="format-hint">
@@ -1449,50 +1449,34 @@ Punkt;Aktion
 Kuller;ab
 Haubenbezug;anbringen`;
 
-const INFO_DEMO = `Notfrequenzen
-Funktion;MHz
-Notfrequenz;121,500
-Segelflug-Not;123,100
-ELT Test;121,500
-Flugplatz-Frequenzen (Heimat)
-Station;MHz
-Wächtersberg;123,475
-Haiterbach;123,350
-Deckenpfronn;130,125
-Musbach;130,125
-Eutingen;129,975
-Poltringen;123,050
-Info / FIS Deutschland
-Station;MHz
-Langen Information;128,950
-Segelflug ATIS;119,325
-Österreich – Information
-Station;MHz
-Wien Information Ost;118,525
-Wien Information Nord;134,625
-Wien Information Süd;124,400
-Langen Information (AT);119,825 / 129,875
-Österreich – Radar
-Station;MHz
-Wien Radar;134,675 / 130,075
-Graz Radar;119,300
-Zeltweg Radar;129,480 / 132,655
-Klagenfurt Radar;123,325
-Salzburg Radar;123,725
-Innsbruck Radar;128,975
-Linz Radar;125,685
-Aigen Radar;118,005
-Alps Radar;119,225
-Österreich – Tower
-Station;MHz
-Neustadt Tower;123,255
-Graz Turm;118,200
-Zeltweg Tower;135,380 / 118,705
-Zeltweg Flugplatz;123,505
-Klagenfurt Tower;118,100
-Innsbruck Tower;120,100
-Innsbruck ATIS;126,030
-Samedan;135,325
+const INFO_DEMO = `Funkfrequenzen
+Station;Frequenz
+Notfrequenz;121.500
+Neustadt Tower;123.255
+Neustadt West Radio;130.150
+Neustadt Ost Radio;122.650
+Police Radio;125.135
+Segelflug Quatsch;123.430 / 123.425
+Wien Information Ost;118.525 (9:00 – 21:00/ECET)
+Wien Information Nord;134.625
+Wien Information Süd;124.400
+Wien Radar;134.675 / 130.075
+Graz Radar;119.300
+Graz Turm;118.200
+Zeltweg Radar;129.480 (132.655) MHz
+Zeltweg Tower;135.380 (118.705) MHz
+Zeltweg Flugplatz;123.505
+Klagenfurt Tower;118.100
+Klagenfurt Radar;123.325
+Salzburg Radar;123.725
+Innsbruck Radar;128.975 (CTA Arlberg Ost) 12500ft bis FL165
+Innsbruck Tower;120.100
+Innsbruck ATIS;126.030 +43 5 17036631
+Linz Radar;125.685
+Aigen Radar;118.005
+Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
+Langen Information;119.825 / 129.875
+Samedan;135.325
 Arcus M – Geschwindigkeiten
 Bezeichnung;km/h
 VROT (Abheben);85
@@ -1508,36 +1492,38 @@ VPO (Prop. operation);90 – 120
 VAPP (Anflug);105
 Arcus M – Gewichte
 Position;Wert
-Leergewicht;515 kg
+Leergewicht;576 kg
 Kraftstoff (16 / 29 L);11,5 / 20,8 kg
 Gepäckfach;max. 2 kg
 Pilot vorne;70 – 115 kg
 Pilot hinten;max. 115 kg
 Zuladung;max. 285 kg
 MTOW;800 kg (51 kg/m²)
-Flächenbelastung (1 PIC);40 kg/m²
-Flächenbelastung (2 PIC);46 kg/m²
+Flächenbelastung (1 PIC);43 kg/m²
+Flächenbelastung (2 PIC);49 kg/m²
 Arcus M – Kraftstoff
 Typ;Angabe
 Super bleifrei;≥ ROZ 95
 AVGAS;100 LL
 Tankvolumen;16 L + 28,9 L (Flügel)
 Verbrauch Reise;24,5 L/h
-Zweitakt-Mischung;1:50 (0,4 L / 20 L)
+Zweitakt-Mischung;1:50 (0,4 L Öl / 20 L)
 Öl;Castrol ACT>EVO / Super Two Stroke
 Spezifikation;JASO FC oder FD
 LX 9000 – Tasten
 Aktion;Bedienung
 Aus;I/O > 4 sec
-Lautstärke;● grün oben links
-Zoom;● blau unten links
-MC einstellen;● rot → Apt 1 → MC/BAL
-Position Report;● rot → Info 1
-Nearest Airport;● rot → Near Airport
+Lautstärke;● oben links
+Mode:● oben rechts
+Zoom;● unten links
+Seiten:● unten rechts
+Vario/SC umschalten;Knüppeltaste
+MC/Ballast;● Taste rechts unten → MC/BAL
 QNH anpassen;Setup → QNH → SELECT
-Pilot anlegen;Setup → Flight Recorder
-Waypoint speichern;● rot → Apt 1 → MARK
-FLARM;Competition / Reduce warnings
+Nearest Airport;● Near Airport
+Position Report;● Flugplatzliste → REPORT
+Waypoint speichern;● MARK
+Vario/Hawk;Setup → Audio → Vario/Hawk wählen
 Funkgerät Becker – Tasten
 Taste;Funktion
 1x kurz;Standard
@@ -1550,23 +1536,34 @@ MDE/STO kurz;FRQ wechseln
 MDE/STO lang;Scan Mode
 SQL kurz;Squelch on/off
 SQL lang;Intercom (IC VOL, IC VOX)
-FRQ-Drehknopf;Drücken + drehen`;
+FRQ-Drehknopf;Drücken + drehen
+Transponder
+Taste;Funktion
+I/O;Ein 0.5s/Aus 3s
+MODE;ACS, A-S, Standby`;
 
 function loadChecklistDemo() {
   sections.checklist.pages = buildPages(parseCSV(CHECKLIST_DEMO), { allowCritical: true });
   sections.checklist.currentPage = 0;
   sections.checklist.profileId = null;
-  sections.checklist.profileName = 'Arcus M D-KJRR';
+  sections.checklist.profileName = 'Arcus M';
   mode = 'checklist';
   showApp();
 }
 function loadInfoDemo() {
-  sections.info.pages = buildPages(parseCSV(INFO_DEMO), { allowCritical: false });
-  sections.info.currentPage = 0;
-  sections.info.profileId = null;
-  sections.info.profileName = 'Frequenzen & Daten';
-  mode = 'info';
-  showApp();
+  const apply = csv => {
+    sections.info.pages = buildPages(parseCSV(csv), { allowCritical: false });
+    sections.info.currentPage = 0;
+    sections.info.profileId = null;
+    sections.info.profileName = 'Arcus M';
+    mode = 'info';
+    showApp();
+  };
+  // Try to load the bundled Info.csv; fall back to embedded string if unavailable
+  fetch('./Info.csv')
+    .then(r => r.ok ? r.text() : Promise.reject())
+    .then(apply)
+    .catch(() => apply(INFO_DEMO));
 }
 
 // ═══ Init ═══

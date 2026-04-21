@@ -87,6 +87,6 @@ SQL kurz;Squelch on/off
 SQL lang;Intercom (IC VOL, IC VOX)
 FRQ-Drehknopf;Drücken + drehen
 Transponder
-Taste:Funktion
+Taste;Funktion
 I/O;Ein 0.5s/Aus 3s
 MODE;ACS, A-S, Standby
