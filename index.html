@@ -474,6 +474,42 @@
   .empty-state .icon { font-size: 40px; margin-bottom: 14px; opacity: 0.5; }
   .empty-state p { margin: 4px 0; font-size: 14px; }
   .empty-state .hint { font-size: 12px; color: var(--text-dim-2); }
+
+  /* ── About dialog ───────────────────────────────────── */
+  .about-dialog { text-align: center; }
+  .about-logo {
+    width: 72px; height: 72px; border-radius: 18px;
+    background: linear-gradient(135deg, #1a6ed8, #4d8ef5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; margin: 0 auto 16px;
+    box-shadow: 0 4px 16px rgba(77,142,245,0.35);
+  }
+  .about-title {
+    margin: 0 0 8px; font-size: 19px; font-weight: 800;
+    letter-spacing: -0.4px;
+  }
+  .about-desc {
+    margin: 0 0 16px; color: var(--text-dim); font-size: 13px;
+    line-height: 1.5;
+  }
+  .about-divider {
+    height: 1px; background: var(--border-subtle); margin: 14px 0;
+  }
+  .about-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 9px 0; border-bottom: 1px solid var(--border-subtle);
+  }
+  .about-row:last-of-type { border-bottom: none; }
+  .about-label {
+    font-size: 13px; color: var(--text-dim-2); font-weight: 500;
+  }
+  .about-value {
+    font-size: 14px; color: var(--text); font-weight: 600;
+  }
+  .about-link {
+    color: var(--accent); text-decoration: none;
+  }
+  .about-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body data-mode="checklist">
@@ -584,6 +620,11 @@ Trennzeichen: <code>;</code> <code>,</code> Tab
     <div class="menu-item danger" id="mi-reset-all" onclick="resetAll()">
       <span class="menu-icon">🗑</span> Alle Häkchen zurücksetzen
     </div>
+
+    <div class="menu-section">App</div>
+    <div class="menu-item" onclick="openAbout()">
+      <span class="menu-icon">ℹ</span> About
+    </div>
   </div>
 </div>
 
@@ -600,6 +641,27 @@ Trennzeichen: <code>;</code> <code>,</code> Tab
       <button class="btn secondary" onclick="closeSaveDialog()">Abbrechen</button>
       <button class="btn" onclick="saveAsProfile()">Speichern</button>
     </div>
+  </div>
+</div>
+
+<!-- About dialog -->
+<div class="dialog-overlay" id="about-dialog" onclick="closeAbout()">
+  <div class="dialog about-dialog" onclick="event.stopPropagation()">
+    <div class="dialog-handle"></div>
+    <div class="about-logo">✈</div>
+    <h3 class="about-title">About Checklist &amp; Info</h3>
+    <p class="about-desc">Offline-fähige Flug-Checkliste und Info-App für Segelflugzeuge als Progressive Web App.</p>
+    <div class="about-divider"></div>
+    <div class="about-row">
+      <span class="about-label">© Autor</span>
+      <span class="about-value">Martin Pirker</span>
+    </div>
+    <div class="about-row">
+      <span class="about-label">Kontakt</span>
+      <a class="about-value about-link" href="mailto:gliderpilotmp@gmail.com">gliderpilotmp@gmail.com</a>
+    </div>
+    <div class="about-divider"></div>
+    <button class="btn" onclick="closeAbout()" style="margin-top:4px;">Schließen</button>
   </div>
 </div>
 
@@ -809,6 +871,14 @@ function openSaveDialog(kind) {
 }
 function closeSaveDialog() { document.getElementById('save-dialog').classList.remove('open'); }
 function onOverlayClick(e) { if (e.target.id === 'save-dialog') closeSaveDialog(); }
+
+function openAbout() {
+  closeMenu();
+  document.getElementById('about-dialog').classList.add('open');
+}
+function closeAbout() {
+  document.getElementById('about-dialog').classList.remove('open');
+}
 
 function saveAsProfile() {
   const name = document.getElementById('save-name').value.trim();
