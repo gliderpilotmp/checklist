@@ -4,7 +4,7 @@
 //            stale-while-revalidate for everything else.
 // ============================================================
 
-const CACHE_NAME = 'arcus-checkliste-v1';
+const CACHE_NAME = 'arcus-checkliste-v2';
 
 // All files that make up the app shell (adjust if you rename files)
 const APP_SHELL = [

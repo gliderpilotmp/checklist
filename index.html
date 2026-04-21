@@ -910,21 +910,23 @@ function renderPage() {
   }
 
   p.rows.forEach((row, ri) => {
-    const tr = document.createElement('tr'); tr.className = 'row';
+    const tr = document.createElement('tr');
+    tr.className = 'row';
+    tr.dataset.ri = ri;
     if (p.checked.has(ri)) tr.classList.add('checked');
     if (p.critical[ri]) tr.classList.add('critical');
-    row.forEach((c, ci) => {
+    row.forEach(c => {
       const td = document.createElement('td');
       td.textContent = c;
       tr.appendChild(td);
     });
-    // Ensure 2 cells
     while (tr.cells.length < 2) { const td = document.createElement('td'); tr.appendChild(td); }
     tr.onclick = () => toggleRow(ri);
     table.appendChild(tr);
 
     if (p.hints[ri]) {
       const hr2 = document.createElement('tr');
+      hr2.dataset.ri = ri;
       hr2.className = 'hint-row' + (p.checked.has(ri) ? ' checked' : '') + (p.critical[ri] ? ' critical' : '');
       const hd = document.createElement('td'); hd.colSpan = 2;
       hd.textContent = p.hints[ri]; hr2.appendChild(hd);
@@ -957,8 +959,38 @@ function toggleRow(ri) {
   const p = pages[currentPage];
   const was = p.checked.has(ri);
   was ? p.checked.delete(ri) : p.checked.add(ri);
-  render();
+
+  // ── In-place DOM update (no scroll reset) ──────────────
+  // Find all <tr> elements belonging to row index ri via data attribute
+  const container = document.getElementById('page-container');
+  container.querySelectorAll(`tr[data-ri="${ri}"]`).forEach(tr => {
+    tr.classList.toggle('checked', !was);
+  });
+
+  // Update progress pill
+  const pill = document.getElementById('progress-text');
+  pill.textContent = `${p.checked.size}/${p.rows.length}`;
+  pill.classList.toggle('complete', p.rows.length > 0 && p.checked.size === p.rows.length);
+
+  // Update progress bar and subtitle counter inside page
+  const pct = p.rows.length > 0 ? Math.round(p.checked.size / p.rows.length * 100) : 0;
+  const fill = container.querySelector('.prog-bar-fill');
+  if (fill) fill.style.width = pct + '%';
+  const metaSpans = container.querySelectorAll('.page-meta span');
+  if (metaSpans[0]) metaSpans[0].textContent = `${p.checked.size} / ${p.rows.length}`;
+  if (metaSpans[1]) metaSpans[1].textContent = pct + '%';
+
+  // Update tab dot
+  const tabs = document.getElementById('tabs');
+  const tab = tabs.querySelectorAll('.tab')[currentPage];
+  if (tab) {
+    tab.classList.toggle('partial',  p.checked.size > 0 && p.checked.size < p.rows.length);
+    tab.classList.toggle('complete', p.rows.length > 0 && p.checked.size === p.rows.length);
+  }
+
+  saveSession();
   if (navigator.vibrate) navigator.vibrate(was ? 8 : [10, 18, 10]);
+
   if (settings.autoAdvance && !was && p.rows.length > 0 &&
       p.checked.size === p.rows.length && currentPage < pages.length - 1) {
     setTimeout(() => { showToast('Kapitel fertig ✓'); nextPage(); }, 700);
