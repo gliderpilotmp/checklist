@@ -1,6 +1,6 @@
-# ✈ Checkliste & Info  — PWA
+# ✈ Checkliste Arcus M D-KJRR — PWA
 
-Offline-fähige Flug-Checkliste und Infos als Progressive Web App.
+Offline-fähige Flug-Checkliste als Progressive Web App.
 
 ---
 

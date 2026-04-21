@@ -79,11 +79,22 @@
   }
 
   #update-banner {
-    display: none; background: var(--accent); color: white;
-    padding: 10px 16px; font-size: 13px;
-    flex-shrink: 0; cursor: pointer; text-align: center; font-weight: 500;
+    display: none; background: #1e4fa3; color: white;
+    padding: 10px 14px; font-size: 13px;
+    flex-shrink: 0;
+    flex-direction: column; gap: 8px;
   }
-  #update-banner.show { display: block; }
+  #update-banner.show { display: flex; }
+  #update-banner span { line-height: 1.4; }
+  #update-banner-btns { display: flex; gap: 8px; }
+  #update-banner-btns button {
+    flex: 1; border: none; border-radius: 7px;
+    padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+    background: rgba(255,255,255,0.15); color: white;
+  }
+  #update-banner-btns button.primary {
+    background: white; color: #1e4fa3;
+  }
 
   #install-prompt {
     display: none; background: var(--bg-elevated); border-bottom: 1px solid var(--border);
@@ -514,7 +525,13 @@
 </head>
 <body data-mode="checklist">
 
-<div id="update-banner" onclick="applyUpdate()">🔄 Neue Version verfügbar – Tippen zum Aktualisieren</div>
+<div id="update-banner">
+  <span>🔄 App-Update verfügbar – deine Daten bleiben erhalten</span>
+  <div id="update-banner-btns">
+    <button onclick="dismissUpdate()">Später</button>
+    <button onclick="applyUpdate()" class="primary">Jetzt laden</button>
+  </div>
+</div>
 
 <div id="install-prompt">
   <div class="install-icon">✈</div>
@@ -672,27 +689,50 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       swRegistration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+
+      // New SW found while page is open
       swRegistration.addEventListener('updatefound', () => {
         const nw = swRegistration.installing;
         nw.addEventListener('statechange', () => {
           if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            // A new version is ready but we do NOT auto-reload.
+            // The user's localStorage data is fully preserved — we just offer
+            // to switch to the new SW at a convenient moment.
             pendingWorker = nw;
             document.getElementById('update-banner').classList.add('show');
           }
         });
       });
+
+      // SW was already waiting when the page loaded (e.g. after bg update)
       if (swRegistration.waiting && navigator.serviceWorker.controller) {
         pendingWorker = swRegistration.waiting;
         document.getElementById('update-banner').classList.add('show');
       }
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) { refreshing = true; window.location.reload(); }
-      });
+
+      // NOTE: We intentionally do NOT listen for 'controllerchange' to
+      // trigger an automatic reload. The reload only happens when the user
+      // taps "Jetzt laden" → applyUpdate() → SKIP_WAITING → we reload once.
     } catch (e) { console.warn('SW failed', e); }
   });
 }
-function applyUpdate() { pendingWorker?.postMessage({ type: 'SKIP_WAITING' }); }
+
+function applyUpdate() {
+  if (pendingWorker) {
+    // Listen for the SW takeover, then reload exactly once
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    }, { once: true });
+    pendingWorker.postMessage({ type: 'SKIP_WAITING' });
+  } else {
+    window.location.reload();
+  }
+}
+function dismissUpdate() {
+  document.getElementById('update-banner').classList.remove('show');
+  // Banner stays dismissed for this session; will reappear on next page load
+  // if the pending SW is still waiting.
+}
 
 // ═══ Install prompt + online status ═══
 let deferredInstallPrompt = null;
