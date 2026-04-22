@@ -1383,25 +1383,36 @@ function showApp() {
 }
 
 // ═══ Demo content ═══
-);
-  sections.checklist.currentPage = 0;
-  sections.checklist.profileId = null;
-  sections.checklist.profileName = 'Arcus M';
-  mode = 'checklist';
-  showApp();
+function loadChecklistDemo() {
+  const apply = csv => {
+    const { checklist } = parseConfig(csv);
+    sections.checklist.pages = checklist;
+    sections.checklist.currentPage = 0;
+    sections.checklist.profileId = null;
+    sections.checklist.profileName = 'Arcus M';
+    mode = 'checklist';
+    showApp();
+  };
+  fetch('./Config.csv')
+    .then(r => r.ok ? r.text() : Promise.reject())
+    .then(apply)
+    .catch(() => apply(CONFIG_DEMO));
 }
-);
+
+function loadInfoDemo() {
+  const apply = csv => {
+    const { info } = parseConfig(csv);
+    sections.info.pages = info;
     sections.info.currentPage = 0;
     sections.info.profileId = null;
     sections.info.profileName = 'Arcus M';
     mode = 'info';
     showApp();
   };
-  // Try to load the bundled Info.csv; fall back to embedded string if unavailable
   fetch('./Info.csv')
     .then(r => r.ok ? r.text() : Promise.reject())
     .then(apply)
-    .catch(() => apply(INFO_DEMO));
+    .catch(() => apply(CONFIG_DEMO)); // Nutzt CONFIG_DEMO als Fallback
 }
 
 const CONFIG_DEMO = `=== Checklist ===
@@ -1699,27 +1710,6 @@ FRQ-Drehknopf;Drücken + drehen
 ##Taste;Funktion
 I/O;Ein 0.5s/Aus 3s
 MODE;ACS, A-S, Standby`;
-
-function loadConfigDemo() {
-  const apply = csv => {
-    const { checklist, info } = parseConfig(csv);
-    sections.checklist.pages = checklist;
-    sections.checklist.currentPage = 0;
-    sections.checklist.profileId = null;
-    sections.checklist.profileName = 'Arcus M';
-    sections.info.pages = info;
-    sections.info.currentPage = 0;
-    sections.info.profileId = null;
-    sections.info.profileName = 'Arcus M';
-    mode = checklist.length ? 'checklist' : 'info';
-    showApp();
-  };
-  // Try to load bundled Config.csv; fall back to embedded string if unavailable
-  fetch('./Config.csv')
-    .then(r => r.ok ? r.text() : Promise.reject())
-    .then(apply)
-    .catch(() => apply(CONFIG_DEMO));
-}
 
 // ═══ Init ═══
 loadSettings();
