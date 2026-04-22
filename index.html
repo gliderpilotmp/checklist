@@ -134,11 +134,11 @@
   }
   .segmented button {
     flex: 1; background: transparent; border: none; color: var(--text-dim);
-    padding: 7px 10px; font-size: 13px; font-weight: 600;
+    padding: 6px 8px; font-size: 13px; font-weight: 600;
     border-radius: 6px; cursor: pointer; transition: all 0.18s;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-    white-space: nowrap;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
   }
+  .seg-icon { font-size: 22px; line-height: 1; }
   .segmented button.active {
     background: var(--bg-elevated); color: var(--text);
     box-shadow: 0 1px 2px rgba(0,0,0,0.25);
@@ -580,11 +580,11 @@ Trennzeichen: <code>;</code> <code>,</code> Tab
 <div id="app-screen">
   <header>
     <div class="segmented">
-      <button id="seg-cl"   data-mode="checklist" onclick="switchMode('checklist')">
-        ✓ Checkliste <span class="count" id="cnt-cl">0</span>
+      <button id="seg-cl"   data-mode="checklist" onclick="switchMode('checklist')" title="Checkliste">
+        <span class="seg-icon">☑</span><span class="count" id="cnt-cl">0</span>
       </button>
-      <button id="seg-info" data-mode="info" onclick="switchMode('info')">
-        ⓘ Info <span class="count" id="cnt-info">0</span>
+      <button id="seg-info" data-mode="info" onclick="switchMode('info')" title="Info">
+        <span class="seg-icon">ⓘ</span><span class="count" id="cnt-info">0</span>
       </button>
     </div>
     <div class="progress-pill" id="progress-text">0/0</div>
@@ -980,9 +980,12 @@ function buildPages(rows, { allowCritical = true } = {}) {
   const result = []; let c = null;
   for (const r of rows) {
     const ne = r.filter(x => x !== '');
-    if (ne.length === 1) {
+    // Chapter marker: single non-empty cell starting with # OR legacy single cell
+    const isChapter = ne.length === 1 && (ne[0].startsWith('#') || !r.some((x,i) => i>0 && x!==''));
+    if (isChapter) {
       if (c) result.push(c);
-      c = { title: ne[0], headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
+      const title = ne[0].startsWith('#') ? ne[0].slice(1).trim() : ne[0];
+      c = { title, headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
     } else {
       if (!c) c = { title: 'Kapitel 1', headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
       if (c.headerRow === null && c.rows.length === 0) {
@@ -1314,15 +1317,15 @@ function showApp() {
 }
 
 // ═══ Demo content ═══
-const CHECKLIST_DEMO = `Aufbau
+const CHECKLIST_DEMO = `#Aufbau
 Schritt;Aktion
 linker Flügel zuerst;
 Aufbauhilfe;Nähe Fahrwerk
 Rechter Flügel;Tank-Anschlüsse zuerst
-Abbau
+#Abbau
 Schritt;Aktion
 Aufbauhilfe;vor ersten Knick
-Cabin Check
+#Cabin Check
 Punkt;Zustand
 frei von Fremdkörpern?;check
 Hauptbolzen;gesichert
@@ -1333,7 +1336,7 @@ Kraftstoffmenge?;check
 Funk;ein; 123.475 MHz
 Motor;ausfahren mit manuellem Schalter
 Hauptschalter;aus (alle 3)
-Walk arround
+#Walk arround
 Punkt;Zustand
 wenn Wasser;Flächen waagerecht
 Kuller;ab
@@ -1363,13 +1366,13 @@ Außenflügel rechts;gesichert
 Bremsklappe rechts;eingefahren
 Flügelnase rechts;ohne Dellen
 P GES;frei
-Passenger Instruction
+#Passenger Instruction
 Punkt;Aktion
 Kommandos;
 Haubennotabwurf;zeigen
 Gurte, Ausstieg;zeigen
 Fallschirm;zeigen
-vor Start
+#vor Start
 Punkt;Zustand
 Kuller ab;check
 Ballast;check
@@ -1384,7 +1387,7 @@ Wölbklappen;-1
 Höhenmesser;600 m
 Funk;ein; 123.475 MHz
 Sprechprobe;Wächtersberg Info, D-KJRR Sprechprobe
-Engine Start
+#Engine Start
 Punkt;Aktion
 Hauptschalter;ein (alle 3)
 Funk;aus
@@ -1396,7 +1399,7 @@ Starterknopf (rot auf Knüppel);drücken
 !Magnetcheck;CHT 40° C / RPM 2500–3000
 Zündkreisschalter;↑/↓ max. –300 RPM
 Redundanzsystem;↑ Notbetrieb / ↓ Normalbetrieb
-(Eigen)Start
+#(Eigen)Start
 Punkt;Zustand
 Treibstoff;check
 Kühlflüssigkeit;check (115° C max.)
@@ -1414,12 +1417,12 @@ ca. 85 km/h;abheben, Höhenruder nachlassen
 bis 95 km/h;flach Fahrt holen
 dann Steigen;VY = 95 km/h
 !Fahrwerk einziehen;verriegeln – Achtung Brandhahn!
-Steigen
+#Steigen
 Punkt;Zustand
 max. 6600 RPM;check
 95 km/h;weiter steigen
 !Kühlflüssigkeit Temp.;≤ 115 °C – sonst schneller / langsamer steigen
-Engine stop
+#Engine stop
 Punkt;Aktion
 1 min Kühllauf;Wasser ca. 65°C
 Funk;aus
@@ -1429,7 +1432,7 @@ Zündung;↓ Triebwerk stoppt
 wenn Propeller senkrecht;mit Spiegel prüfen
 Triebwerk fährt ein;Kontrollampe blinkt grün
 Triebwerk eingefahren;Kontrollampe konst. grün
-before Landing
+#before Landing
 Punkt;Zustand
 Flugzeug in Position;check
 Flughöhe;200 m AGL / 800 m MSL
@@ -1437,19 +1440,19 @@ Flughöhe;200 m AGL / 800 m MSL
 Fahrwerk;ausfahren & verriegeln
 Wölbklappe;+2
 Funk;D-KJRR rechter Gegenanflug 07
-Landing
+#Landing
 Punkt;Einstellung
 !105 km/h;set – Klappen max. ½
-After Landing
+#After Landing
 Punkt;Aktion
 Logger noch 5 min laufen lassen;
 Hauptschalter;aus (alle 3)
-Securing Airplane
+#Securing Airplane
 Punkt;Aktion
 Kuller;ab
 Haubenbezug;anbringen`;
 
-const INFO_DEMO = `Funkfrequenzen
+const INFO_DEMO = `#Funkfrequenzen
 Station;Frequenz
 Notfrequenz;121.500
 Neustadt Tower;123.255
@@ -1477,7 +1480,7 @@ Aigen Radar;118.005
 Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
 Langen Information;119.825 / 129.875
 Samedan;135.325
-Arcus M – Geschwindigkeiten
+#Arcus M – Geschwindigkeiten
 Bezeichnung;km/h
 VROT (Abheben);85
 VY (beste Steigrate);95
@@ -1490,7 +1493,7 @@ VLO (max. Gear Speed);180
 VX (ger. Sinken / max. Weite);110 – 120
 VPO (Prop. operation);90 – 120
 VAPP (Anflug);105
-Arcus M – Gewichte
+#Arcus M – Gewichte
 Position;Wert
 Leergewicht;576 kg
 Kraftstoff (16 / 29 L);11,5 / 20,8 kg
@@ -1501,7 +1504,7 @@ Zuladung;max. 285 kg
 MTOW;800 kg (51 kg/m²)
 Flächenbelastung (1 PIC);43 kg/m²
 Flächenbelastung (2 PIC);49 kg/m²
-Arcus M – Kraftstoff
+#Arcus M – Kraftstoff
 Typ;Angabe
 Super bleifrei;≥ ROZ 95
 AVGAS;100 LL
@@ -1510,13 +1513,13 @@ Verbrauch Reise;24,5 L/h
 Zweitakt-Mischung;1:50 (0,4 L Öl / 20 L)
 Öl;Castrol ACT>EVO / Super Two Stroke
 Spezifikation;JASO FC oder FD
-LX 9000 – Tasten
+#LX 9000 – Tasten
 Aktion;Bedienung
 Aus;I/O > 4 sec
 Lautstärke;● oben links
-Mode:● oben rechts
+Mode;● oben rechts
 Zoom;● unten links
-Seiten:● unten rechts
+Seiten;● unten rechts
 Vario/SC umschalten;Knüppeltaste
 MC/Ballast;● Taste rechts unten → MC/BAL
 QNH anpassen;Setup → QNH → SELECT
@@ -1524,7 +1527,7 @@ Nearest Airport;● Near Airport
 Position Report;● Flugplatzliste → REPORT
 Waypoint speichern;● MARK
 Vario/Hawk;Setup → Audio → Vario/Hawk wählen
-Funkgerät Becker – Tasten
+#Funkgerät Becker – Tasten
 Taste;Funktion
 1x kurz;Standard
 2x kurz;Direkt Eingabe
@@ -1537,7 +1540,7 @@ MDE/STO lang;Scan Mode
 SQL kurz;Squelch on/off
 SQL lang;Intercom (IC VOL, IC VOX)
 FRQ-Drehknopf;Drücken + drehen
-Transponder
+#Transponder
 Taste;Funktion
 I/O;Ein 0.5s/Aus 3s
 MODE;ACS, A-S, Standby`;
