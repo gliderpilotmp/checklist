@@ -1,0 +1,250 @@
+=== Checklist ===
+
+=== Checklist ===
+
+#Aufbau
+##Schritt;Aktion
+Seitenruderbatterie;im Heck und angeschlossen
+Knüppel;gerade und mittig
+Wölbklappe;auf 0 (L wenn ohne Aufrüsthilfe)
+Bremsklappe;entriegelt
+Wasserhahn;zu (vor)
+Flügelstütze;links
+Linker Flügel zuerst;mit Hauptbolzen 3cm sichern
+Tank-Anschlüsse;Tank- und Belüftungschlauch anschließen
+
+#Daily check
+##Punkt;Zustand
+Hauptbolzen;gesichert
+Hauptrad und Spornrad;4 bar und 3 bar
+Kraftstoffmenge?;voll getankt
+Pedale & Knüppel;freigängig
+Batterien C1 & C2;fest & angeschlossen, Schalter C2
+Rumpf und Flügel ohne Dellen;check
+Ruder freigängig;check
+Höhenruder links und rechts bewegen; Ruderklappe verzieht sich nicht
+Seitenruderbeschlag;check
+
+#Motorcheck
+##Punkt;Zustand
+Motor;manuell ausfahren
+Wasserpumpe läuft;Zündung ein, check, Zündung aus
+!Motorcheck ;Zündung aus
+Kühlflüssigkeit;ausreichend (Schlauch)
+Propeller;check
+Zahnriemen;check
+Auspuff;check
+Starterritzel;check
+Schrauben und Spindelantrieb;fest
+Zündanlage;fest
+
+#Vor dem Flug
+##Punkt;Zustand
+Düse;montiert
+ELT;on
+Beladung;Trimgewicht & Hecktank gecheckt
+Tankinhalt;14l
+Betankungsschlauch;im Gepäckfach
+Sauerstoff;gefüllt & EDS angeschlossen
+!Motorcheck;durchgeführt
+Papiere;verstaut
+Geld, Pass, Telefonliste, Handy;verstaut
+Proviant, Trinken;verstaut
+Powerbank;verstaut
+Urinal;verstaut
+Warnweste;verstaut
+Handfunkgerät;verstaut
+LX9000;Airports, Wendepunkte, Task geladen
+
+#Vor Start
+##Punkt;Zustand
+Kuller ab;check
+Ballast;check
+Fallschirm angelegt;check
+Pilot angeschnallt;check
+Kabinenhaube;verschlossen
+Funk;Frequenz eingestellt
+Kopfhörer;Intercom eingestellt
+Höhenmesser;eingestellt
+Haubennotabwurf;bekannt
+Ruder;freigängig
+Bremsklappen;aus / ein / verriegelt
+Wölbklappen;-1
+
+#Engine Start
+##Punkt;Aktion
+Kopfhörer;auf
+Funk;auf Intercom
+Hauptschalter;ein (alle 3)
+Treibstoff;check
+man. Bedienschalter;Mitte (automatik)
+Zündschalter;↑, Triebwerk fährt aus
+Gashebel;Leerlauf
+Starterknopf (rot auf Knüppel);drücken
+!Magnetcheck;CHT 40° C / RPM 2500 – 3000
+Zündkreisschalter;↑/↓ -300 RPM max.
+Redundanzsystem;↑ Notbetrieb / ↓ Normalbetrieb
+
+#(Eigen)Start
+##Punkt;Zustand
+Transponder;ein
+Benzinhahn;offen
+Treibstoff;check
+Kühlflüssigkeit;check (115° C max.)
+Ruder;freigängig
+Wölbklappen;-1
+Trimmung;hinterer Bereich
+Luftraum;frei
+Startstrecke;frei
+Wind;prüfen
+Bremse;lösen
+Höhenruder;voll ziehen
+Gas;so dass Nase oben bleibt
+ab 40 km/h;Wölbung +2
+ca. 85 km/h;abheben, Höhenruder nachlassen
+bis 95 km/h;flach Fahrt holen dann Steigen (95kmh)
+
+#Steigen
+##Punkt;Zustand
+max. 6600 RPM;check
+95 km/h;weiter steigen
+Kühlflüssigkeit Temp.;≤ 115 °C, sonst schneller fliegen & langsamer steigen
+!Fahrwerk;einziehen, verriegeln (Achtung Brandhahn!)
+
+#Engine stop
+##Punkt;Aktion
+1 min Kühllauf;Wasser ca. 65°C
+Funk;aus
+Geschwindigkeit;95 – 100 km/h
+man. Bedienschalter;Mitte (automatik)
+Zündung;↓, Triebwerk stoppt
+wenn Propeller senkrecht;check mit Spiegel
+Triebwerk fährt ein;Kontrollampe blinkt grün
+Triebwerk eingefahren;Kontrollampe konst. grün
+Funk;Intercom auf Cockpit
+
+#before Landing
+##Punkt;Zustand
+Flugzeug in Position;check
+Flughöhe;200 m AGL (800 m MSL)
+≤ 130 km/h;set
+Fahrwerk;ausfahren & verriegeln
+Wölbklappe;+2
+
+#Landing
+##Punkt;Einstellung
+105 km/h;set, Klappen max. ½
+
+#Nach der Landung
+##Punkt;Aktion
+LX9000;noch 5 min laufen lassen
+LX9000;Zeiten und Flug auslesen/hochladen
+!Hauptschalter;aus (alle 3)
+
+#Securing Airplane
+##Punkt;Aktion
+Kuller;ab
+Haubenbezug;anbringen
+
+=== Infos ===
+
+#Funkfrequenzen
+##Station;Frequenz
+Notfrequenz;121.500
+Neustadt Tower;123.255
+Neustadt West Radio;130.150
+Neustadt Ost Radio;122.650
+Police Radio;125.135
+Segelflug Quatsch;123.430 / 123.425
+Wien Information Ost;118.525 (9:00 – 21:00/ECET)
+Wien Information Nord;134.625
+Wien Information Süd;124.400
+Wien Radar;134.675 / 130.075
+Graz Radar;119.300
+Graz Turm;118.200
+Zeltweg Radar;129.480 (132.655) MHz
+Zeltweg Tower;135.380 (118.705) MHz
+Zeltweg Flugplatz;123.505
+Klagenfurt Tower;118.100
+Klagenfurt Radar;123.325
+Salzburg Radar;123.725
+Innsbruck Radar;128.975 (CTA Arlberg Ost) 12500ft bis FL165
+Innsbruck Tower;120.100
+Innsbruck ATIS;126.030 +43 5 17036631
+Linz Radar;125.685
+Aigen Radar;118.005
+Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
+Langen Information;119.825 / 129.875
+Samedan;135.325
+
+#Arcus M – Geschwindigkeiten
+##Bezeichnung;km/h
+VROT (Abheben);85
+VY (beste Steigrate);95
+VT (F-Schlepp);110 – 120
+VT (braun, 850 daN);max. 180
+VA (Manövergeschw.);180
+VNE (never exceed);280
+VFE (max. Klappen);180
+VLO (max. Gear Speed);180
+VX (ger. Sinken / max. Weite);110 – 120
+VPO (Prop. operation);90 – 120
+VAPP (Anflug);105
+
+#Arcus M – Gewichte
+##Position;Wert
+Leergewicht;576 kg
+Kraftstoff (16 / 29 L);11,5 / 20,8 kg
+Gepäckfach;max. 2 kg
+Pilot vorne;70 – 115 kg
+Pilot hinten;max. 115 kg
+Zuladung;max. 285 kg
+MTOW;800 kg (51 kg/m²)
+Flächenbelastung (1 PIC);43 kg/m²
+Flächenbelastung (2 PIC);49 kg/m²
+
+#Arcus M – Kraftstoff
+##Typ;Angabe
+Super bleifrei;≥ ROZ 95
+AVGAS;100 LL
+Tankvolumen;16 L + 28,9 L (Flügel)
+Verbrauch Reise;24,5 L/h
+Zweitakt-Mischung;1:50 (0,4 L Öl / 20 L)
+Öl;Castrol ACT>EVO / Super Two Stroke
+Spezifikation;JASO FC oder FD
+
+#LX 9000 – Tasten
+##Aktion;Bedienung
+Aus;I/O > 4 sec
+Lautstärke;oben links
+Mode (Airport, Waypoint, Task);oben rechts
+Zoom;unten links
+Seiten;unten rechts
+Vario/SC umschalten;Knüppeltaste
+MC/Ballast;Taste rechts unten → MC/BAL
+QNH anpassen;Setup → QNH → SELECT
+Nearest Airport;Nearest Seite 
+Position Report;Flugplatzliste → REPORT
+Waypoint speichern;MARK
+Vario/Hawk;Setup→Audio→ Vario/Hawk wählen
+#Funkgerät Becker – Tasten;
+Taste;Funktion
+1x kurz;Standard
+2x kurz;Direkt Eingabe
+3x kurz;Kanalwahl
+Lang;Pilots Menü (Helligkeit, SQL)
+FRQ-Knopf lang;25 / 8,33 kHz umschalten
+FRQ-Knopf kurz;speichern
+MDE/STO kurz;FRQ wechseln
+MDE/STO lang;Scan Mode
+SQL kurz;Squelch on/off
+SQL lang;Intercom (IC VOL, IC VOX)
+FRQ-Drehknopf;Drücken + drehen
+
+#Transponder
+##Taste;Funktion
+I/O;Ein 0.5s/Aus 3s
+MODE;ACS, A-S, Standby
+#AIS / FIS;
+Station;Nummer
+FIS Wien;1243546

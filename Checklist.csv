@@ -1,15 +1,15 @@
 #Aufbau
-Schritt;Aktion
-Seitenruderbatterie;ins Heck
-Flügelstütze;links
-Knüppel;gerade und mittig
-Wölbklappe;auf 0 
-Bremsklappe;entriegelt
-Wasserhahn;zu (vor)
-Linker Flügel zuerst;mit Hauptbolzen 3cm sichern
-Tank-Anschlüsse;beide Verbindungen je Seite herstellen
+##Schritt;Aktion
+linker Flügel zuerst;
+Aufbauhilfe;Nähe Fahrwerk
+Rechter Flügel;Tank-Anschlüsse zuerst
+
+#Abbau
+##Schritt;Aktion
+Aufbauhilfe;vor ersten Knick
+
 #Cabin Check
-Punkt;Zustand
+##Punkt;Zustand
 frei von Fremdkörpern?;check
 Hauptbolzen;gesichert
 Pedale & Knüppel;freigängig
@@ -19,8 +19,9 @@ Kraftstoffmenge?;check
 Funk;ein; 123.475 MHz
 Motor;ausfahren mit manuellem Schalter
 Hauptschalter;aus (alle 3)
+
 #Walk arround
-Punkt;Zustand
+##Punkt;Zustand
 wenn Wasser;Flächen waagerecht
 Kuller;ab
 Bugrad;3,0 hPa
@@ -50,33 +51,25 @@ Außenflügel rechts;gesichert
 Bremsklappe rechts;eingefahren
 Flügelnase rechts;ohne Dellen
 P GES;frei
+
 #Passenger Instruction
-Punkt;Aktion
+##Punkt;Aktion
 Kommandos;
 Haubennotabwurf;zeigen
 Gurte, Ausstieg;zeigen
 Fallschirm;zeigen
+
 #Tanken / Öl
-Treibstoff;Menge / Zeit
+##Treibstoff;Menge / Zeit
 Sup. blfr. ≥ ROZ 95;16,0 L / 15,7 L / 00:23
 AVGAS 100LL;28,9 L / 28,2 L / 01:09
 Inhalt / ausfliegbar / Zeit;(bei 24,5 L/h Verbrauch)
 Zweitaktöl;1:50 = 0,4 L Öl / 20 L Treibstoff
 Öl-Typen;Castrol ACT>EVO / Castrol Super Two Stroke
 Spec.;JASO FC oder FD
-#Gewichte
-Position;Gewicht
-Leer;515 kg
-Kraftstoff 16/29 L;11,5/20,8 kg
-Gepäckfach;2 kg max.
-Pilot vorne;70/115 kg (min./max.)
-Pilot hinten;115 kg max.
-Zuladung;285 kg max.
-MTOW;800 kg = 51 kg/m²
-Flächenbelastung (15,6 m²);1 PIC + Fuel = 40 kg/m²
-Flächenbelastung voll;2 PIC + Fuel = 46 kg/m²
+
 #vor Start
-Punkt;Zustand
+##Punkt;Zustand
 Kuller ab;check
 Ballast;check
 Fallschirm angelegt;check
@@ -90,8 +83,9 @@ Wölbklappen;-1
 Höhenmesser;600 m
 Funk;ein; 123.475 MHz
 Sprechprobe;Wächtersberg Info, D-KJRR Sprechprobe
+
 #Engine Start
-Punkt;Aktion
+##Punkt;Aktion
 Hauptschalter;ein (alle 3)
 Funk;aus
 Treibstoff;check
@@ -102,8 +96,9 @@ Starterknopf (rot auf Knüppel);drücken
 !Magnetcheck;CHT 40° C / RPM 2500 – 3000
 Zündkreisschalter;↑/↓ -300 RPM max.
 Redundanzsystem;↑ Notbetrieb / ↓ Normalbetrieb
+
 #(Eigen)Start
-Punkt;Zustand
+##Punkt;Zustand
 Treibstoff;check
 Kühlflüssigkeit;check (115° C max.)
 Ruder;freigängig
@@ -120,13 +115,15 @@ ca. 85 km/h;abheben, Höhenruder nachlassen
 bis 95 km/h;flach Fahrt holen
 dann Steigen (VY);
 !Fahrwerk;einziehen, verriegeln (!! Achtung Brandhahn !!)
+
 #Steigen
-Punkt;Zustand
+##Punkt;Zustand
 max. 6600 RPM;check
 95 km/h;weiter steigen
 Kühlflüssigkeit Temp.;≤ 115 °C, sonst schneller fliegen & langsamer steigen
+
 #Engine stop
-Punkt;Aktion
+##Punkt;Aktion
 1 min Kühllauf;Wasser ca. 65°C
 Funk;aus
 Geschwindigkeit;95 – 100 km/h
@@ -135,106 +132,61 @@ Zündung;↓, Triebwerk stoppt
 wenn Propeller senkrecht;check mit Spiegel
 Triebwerk fährt ein;Kontrollampe blinkt grün
 Triebwerk eingefahren;Kontrollampe konst. grün
+
 #before Landing
-Punkt;Zustand
+##Punkt;Zustand
 Flugzeug in Position;check
 Flughöhe;200 m AGL (800 m MSL)
 ≤ 130 km/h;set
 Fahrwerk;ausfahren & verriegeln
 Wölbklappe;+2
 Funk;Wächterberg Info, D-KJRR rechter Gegenanflug 07 zur Landung
+
 #Landing
-Punkt;Einstellung
+##Punkt;Einstellung
 105 km/h;set, Klappen max. ½
+
 #After Landing
-Punkt;Aktion
+##Punkt;Aktion
 Logger noch 5 min laufen lassen;
 Hauptschalter;aus (alle 3)
+
 #Securing Airplane
-Punkt;Aktion
+##Punkt;Aktion
 Kuller;ab
 Haubenbezug;anbringen
-#Geschwindigkeiten
-Bezeichnung;Wert
-VROT (Abheben);85 km/h
-VY (beste Steigrate, schnell hoch);95 km/h
-VT (F-Schlepp);110-120 km/h
-VT braun 850 daN;180 km/h max.
-VA (Manövergesch.);180 km/h
-VNE (never exceed);280 km/h
-VFE (max Klappen op.);180 km/h
-VLO (max. Gear operating Speed);180 km/h
-VX (gering. Sinken, max. Weit);110 – 120 km/h
-VPO (Prop. operation);90 – 120 km/h
-VAPP (Anfluggeschw.);105 km/h
-VS (Stallspeed WK 0);X km/h
-VS0 (Stallspeed in Landekonf.);X km/h
+
 #ELT 406 MHz
-Punkt;Aktion
+##Punkt;Aktion
 Einschalten;
 Test (121.5 MHz);H +05, max. 3 beeps
+
 #Equipment List - Motor
-Item;Inhalt
+##Item;Inhalt
 2 x 20 L Kanister für Treibstoff;gefüllt mit AVGAS und je 0,4 L Zweitaktöl
 2-Takt Öl;2 x 1 L
 Behälter 13 L;
 Tankschlauch mit Benzinfilter;
+
 #Equipment List - Strom
-Item;Zustand
+##Item;Zustand
 Ladegerät für Flugzeug;
 Ladegerät für Balastwasserpumpe;
 220 V Kabel;
+
 #Equipment List - Wasserballast
-Item;Zustand
+##Item;Zustand
 Kanister für Wasser;
 Füllschlauch mit Filter;
 Pumpe für Wasser;
 Batterie für Wasserpumpe;
+
 #Equipment List - Flugzeug
-Item;Zustand
+##Item;Zustand
 Klebeband;Vorhanden
 Flächenbezüge;Vorhanden
 Batterie C1 + C2;Vorhanden
+
 #Sauerstoff
-Item;Zustand
+##Item;Zustand
 Flaschen;gefüllt
-#Bedienung LX 9000
-Funktion;Bedienung
-Symbol ⊙ = Drehschalter;
-Aus;I/O > 4 sec drücken, loslassen
-Lautstärke;● (grün) oben links
-Sollfahrt / Vario umschalten;weißer Schalter auf Knüppel vorn
-Zoom;● (blau) unten links
-MC einstellen;● (rot) oben rechts bis Apt 1; beliebige Taste; MC/BAL; ⊙ unten rechts einstellen
-Position Report;● (rot) oben rechts bis Info 1; ⊙ unten rechts bis Info 2
-Nearest?;● (rot) oben rechts bis Near Airport; ggf. SORT drücken
-FRQ Landefeld?;● (rot) oben rechts bis Apt 1; ⊙ unten rechts bis Apt 3
-aktuelle Position als Waypoint speichern;● (rot) oben rechts bis Apt 1; beliebige Taste; MARK drücken
-Event aufzeichnen (1 min jede sec);● (rot) oben rechts bis Apt 1
-FLARM Einstellungen;Flarm Setup: Competition mode / Reduce warnings
-Gewichte eingeben;
-QNH anpassen;● (rot) oben rechts bis Setup; ⊙ (gelb) unten rechts bis QNH; SELECT drücken
-Pilot anlegen;● (rot) oben rechts bis Setup; ⊙ (gelb) unten rechts bis Flight Recorder; auf 10 sec ändern; Gewicht eingeben; Name = Dat + Zeit
-#Funkgerät - Bedienung
-Taste;Funktion
-1x;Standard
-2x;Direkt Eingabe
-3x;Kanalwahl
-Lang;pilots menü: Helligkeit (⊙), SQL
-FRQ-Knopf lang;25/8.33 KHz
-FRQ-Knopf kurz;speichern
-MDE/STO kurz;Wechsel FRQ
-MDE/STO lang;Scan Mode (2. FRQ mithören)
-SQL kurz;Squelch on/off
-SQL lang;intercom menü: IC VOL (1x), IC VOX (-15)
-FRQ;Drücken + drehen
-#Funkfrequenzen
-Station;Frequenz
-Langen Info;128,950
-Segelflug ATIS;119,325
-Wächtersberg;123,475
-Haiterbach;123,350
-Deckenpfronn;130,125
-Musbach;130,125
-Eutingen;129,975
-Poltringen;123,050

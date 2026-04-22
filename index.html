@@ -545,34 +545,33 @@
 <div id="upload-screen">
   <img class="app-logo" src="./icons/icon-192.png" alt="App Icon">
   <h2>Checkliste &amp; Info</h2>
-  <p>Zwei getrennte Bereiche: interaktive Checkliste (abhakbar) und reine Info-Seiten (Frequenzen, Flugplätze, Daten).</p>
+  <p>Eine Config-Datei enthält Checkliste und Info-Seiten. Zwischen beiden wechselst du später mit ☑ / ⓘ im Header.</p>
 
   <div id="profile-list-container" style="width:100%; display:flex; justify-content:center;"></div>
 
-  <input type="file" id="file-input-cl"   accept=".csv,.txt" style="display:none">
-  <input type="file" id="file-input-info" accept=".csv,.txt" style="display:none">
+  <input type="file" id="file-input-config" accept=".csv,.txt" style="display:none">
 
-  <div class="btn-section-label">Checkliste</div>
   <div class="btn-row">
-    <button class="btn" onclick="document.getElementById('file-input-cl').click()">📂 Checklisten-CSV</button>
-    <button class="btn secondary" onclick="loadChecklistDemo()">Demo (Arcus M)</button>
-  </div>
-
-  <div class="btn-section-label">Info-Seiten</div>
-  <div class="btn-row">
-    <button class="btn info" onclick="document.getElementById('file-input-info').click()">📂 Info-CSV</button>
-    <button class="btn info-secondary" onclick="loadInfoDemo()">Demo (Arcus M)</button>
+    <button class="btn" onclick="document.getElementById('file-input-config').click()">📂 Config-CSV laden</button>
+    <button class="btn secondary" onclick="loadConfigDemo()">Demo (Arcus M)</button>
   </div>
 
   <div class="format-hint">
-<strong>CSV-Format (für beide)</strong>
-Kapitelname<br>
-Spalte1;Spalte2;Hinweis (opt.)<br>
-Zeile1a;Zeile1b<br>
-<code>!</code>Kritisch;Wert&nbsp;<em>(nur Checkliste)</em><br>
+<strong>Config-CSV Aufbau</strong>
+=== Checklist ===<br>
 <br>
-Zeile mit 1 Feld = neues Kapitel<br>
-Trennzeichen: <code>;</code> <code>,</code> Tab
+#Kapitelname<br>
+##Spalte1;Spalte2<br>
+Zeile1a;Zeile1b<br>
+<code>!</code>Kritisch;Wert<br>
+<br>
+=== Infos ===<br>
+<br>
+#Kapitelname<br>
+##Spalte1;Spalte2<br>
+Zeile1a;Zeile1b<br>
+<br>
+<em>`!` nur im Checklist-Bereich wirksam.</em>
   </div>
 </div>
 
@@ -979,21 +978,40 @@ function parseLine(line, sep) {
 function buildPages(rows, { allowCritical = true } = {}) {
   const result = []; let c = null;
   for (const r of rows) {
-    const ne = r.filter(x => x !== '');
-    // Chapter marker: single non-empty cell starting with # OR legacy single cell
-    const isChapter = ne.length === 1 && (ne[0].startsWith('#') || !r.some((x,i) => i>0 && x!==''));
-    if (isChapter) {
+    const first = (r[0] || '').trim();
+    // Skip completely empty rows
+    if (r.every(x => x === '')) continue;
+
+    if (first.startsWith('##')) {
+      // Header row
+      if (!c) c = { title: 'Kapitel 1', headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
+      const cleaned = [...r];
+      cleaned[0] = first.slice(2).trim();
+      c.headerRow = cleaned.slice(0, 2);
+    } else if (first.startsWith('#')) {
+      // Chapter line
       if (c) result.push(c);
-      const title = ne[0].startsWith('#') ? ne[0].slice(1).trim() : ne[0];
+      const title = first.slice(1).trim();
       c = { title, headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
     } else {
+      // Data row — or legacy single-cell chapter
+      const ne = r.filter(x => x !== '');
+      // Only treat as legacy chapter if no ##-header has been seen in this chapter
+      // (once we have a ##-header, single-cell rows are just data with empty 2nd col)
+      if (ne.length === 1 && (!c || c.headerRow === null)) {
+        // Legacy single-cell chapter (no # prefix)
+        if (c) result.push(c);
+        c = { title: ne[0], headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
+        continue;
+      }
       if (!c) c = { title: 'Kapitel 1', headerRow: null, rows: [], critical: [], hints: [], checked: new Set() };
+      // Legacy: first multi-cell row after chapter = header row (if no ## yet)
       if (c.headerRow === null && c.rows.length === 0) {
         c.headerRow = r.slice(0, 2);
       } else {
-        const isCrit = allowCritical && r[0].startsWith('!');
+        const isCrit = allowCritical && first.startsWith('!');
         const cleaned = [...r];
-        if (isCrit) cleaned[0] = cleaned[0].slice(1).trim();
+        if (isCrit) cleaned[0] = first.slice(1).trim();
         const hint = cleaned.length > 2 ? cleaned.slice(2).filter(x=>x).join(' · ') : '';
         c.rows.push(cleaned.slice(0, 2));
         c.critical.push(isCrit);
@@ -1003,6 +1021,48 @@ function buildPages(rows, { allowCritical = true } = {}) {
   }
   if (c) result.push(c);
   return result;
+}
+
+// Parse a Config-CSV with === Section === markers into both sections at once
+function parseConfig(text) {
+  // Normalize line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = text.split('\n');
+
+  // Split by section markers
+  const SECTION_RE = /^\s*=+\s*(Checklist|Infos?|Info)\s*=+\s*$/i;
+  let currentSection = null;
+  const buckets = { checklist: [], info: [] };
+
+  for (const line of lines) {
+    const m = line.match(SECTION_RE);
+    if (m) {
+      const key = m[1].toLowerCase();
+      currentSection = key.startsWith('check') ? 'checklist' : 'info';
+      continue;
+    }
+    // If no section marker yet, default to checklist (legacy support)
+    if (!currentSection) currentSection = 'checklist';
+    buckets[currentSection].push(line);
+  }
+
+  return {
+    checklist: buildPages(parseCSVLines(buckets.checklist), { allowCritical: true }),
+    info:      buildPages(parseCSVLines(buckets.info),      { allowCritical: false })
+  };
+}
+
+function parseCSVLines(lines) {
+  // Detect separator from first content line
+  let sep = ';';
+  for (const l of lines) {
+    if (!l.trim()) continue;
+    const c = { ';': (l.match(/;/g)||[]).length, ',': (l.match(/,/g)||[]).length, '\t': (l.match(/\t/g)||[]).length };
+    sep = Object.entries(c).sort((a,b) => b[1]-a[1])[0][0];
+    if (c[sep] === 0) sep = ';';
+    break;
+  }
+  return lines.map(l => parseLine(l, sep)).filter(r => r.some(c => c.trim()));
 }
 
 // ═══ Render ═══
@@ -1276,28 +1336,34 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function handleFileUpload(inputId, kind) {
+function handleConfigUpload(inputId) {
   document.getElementById(inputId).addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
     const r = new FileReader();
     r.onload = ev => {
-      const rows = parseCSV(ev.target.result);
-      const pages = buildPages(rows, { allowCritical: kind === 'checklist' });
-      if (!pages.length) { alert('Keine Kapitel gefunden.'); return; }
-      const section = sections[kind];
-      section.pages = pages;
-      section.currentPage = 0;
-      section.profileId = null;
-      section.profileName = f.name.replace(/\.(csv|txt)$/i, '');
-      mode = kind;
+      const { checklist, info } = parseConfig(ev.target.result);
+      if (!checklist.length && !info.length) {
+        alert('Keine Kapitel gefunden.');
+        return;
+      }
+      const name = f.name.replace(/\.(csv|txt)$/i, '');
+      sections.checklist.pages = checklist;
+      sections.checklist.currentPage = 0;
+      sections.checklist.profileId = null;
+      sections.checklist.profileName = name;
+      sections.info.pages = info;
+      sections.info.currentPage = 0;
+      sections.info.profileId = null;
+      sections.info.profileName = name;
+      // Pick the section that actually has content
+      mode = checklist.length ? 'checklist' : 'info';
       showApp();
     };
     r.readAsText(f, 'UTF-8');
     e.target.value = '';
   });
 }
-handleFileUpload('file-input-cl',   'checklist');
-handleFileUpload('file-input-info', 'info');
+handleConfigUpload('file-input-config');
 
 let tx = 0, ty = 0, tt = 0;
 const pc = document.getElementById('page-container');
@@ -1317,16 +1383,41 @@ function showApp() {
 }
 
 // ═══ Demo content ═══
-const CHECKLIST_DEMO = `#Aufbau
-Schritt;Aktion
+);
+  sections.checklist.currentPage = 0;
+  sections.checklist.profileId = null;
+  sections.checklist.profileName = 'Arcus M';
+  mode = 'checklist';
+  showApp();
+}
+);
+    sections.info.currentPage = 0;
+    sections.info.profileId = null;
+    sections.info.profileName = 'Arcus M';
+    mode = 'info';
+    showApp();
+  };
+  // Try to load the bundled Info.csv; fall back to embedded string if unavailable
+  fetch('./Info.csv')
+    .then(r => r.ok ? r.text() : Promise.reject())
+    .then(apply)
+    .catch(() => apply(INFO_DEMO));
+}
+
+const CONFIG_DEMO = `=== Checklist ===
+
+#Aufbau
+##Schritt;Aktion
 linker Flügel zuerst;
 Aufbauhilfe;Nähe Fahrwerk
 Rechter Flügel;Tank-Anschlüsse zuerst
+
 #Abbau
-Schritt;Aktion
+##Schritt;Aktion
 Aufbauhilfe;vor ersten Knick
+
 #Cabin Check
-Punkt;Zustand
+##Punkt;Zustand
 frei von Fremdkörpern?;check
 Hauptbolzen;gesichert
 Pedale & Knüppel;freigängig
@@ -1336,8 +1427,9 @@ Kraftstoffmenge?;check
 Funk;ein; 123.475 MHz
 Motor;ausfahren mit manuellem Schalter
 Hauptschalter;aus (alle 3)
+
 #Walk arround
-Punkt;Zustand
+##Punkt;Zustand
 wenn Wasser;Flächen waagerecht
 Kuller;ab
 Bugrad;3,0 hPa
@@ -1346,9 +1438,10 @@ Flügelnase links;ohne Dellen
 Bremsklappe links;eingefahren
 Außenflügel links;gesichert
 Wölbklappe links;gegenläufig, verbunden
-!Motor – Zündung;aus
-!Motor – Kühlflüssigkeit;ausreichend (Schlauch)
-!Motor – Wasserpumpe;läuft
+!Motor;
+Zündung;aus
+Kühlflüssigkeit;ausreichend (Schlauch)
+!Wasserpumpe;läuft
 Propeller;check
 Schrauben;fest
 Zündanlage;fest
@@ -1366,14 +1459,25 @@ Außenflügel rechts;gesichert
 Bremsklappe rechts;eingefahren
 Flügelnase rechts;ohne Dellen
 P GES;frei
+
 #Passenger Instruction
-Punkt;Aktion
+##Punkt;Aktion
 Kommandos;
 Haubennotabwurf;zeigen
 Gurte, Ausstieg;zeigen
 Fallschirm;zeigen
+
+#Tanken / Öl
+##Treibstoff;Menge / Zeit
+Sup. blfr. ≥ ROZ 95;16,0 L / 15,7 L / 00:23
+AVGAS 100LL;28,9 L / 28,2 L / 01:09
+Inhalt / ausfliegbar / Zeit;(bei 24,5 L/h Verbrauch)
+Zweitaktöl;1:50 = 0,4 L Öl / 20 L Treibstoff
+Öl-Typen;Castrol ACT>EVO / Castrol Super Two Stroke
+Spec.;JASO FC oder FD
+
 #vor Start
-Punkt;Zustand
+##Punkt;Zustand
 Kuller ab;check
 Ballast;check
 Fallschirm angelegt;check
@@ -1387,20 +1491,22 @@ Wölbklappen;-1
 Höhenmesser;600 m
 Funk;ein; 123.475 MHz
 Sprechprobe;Wächtersberg Info, D-KJRR Sprechprobe
+
 #Engine Start
-Punkt;Aktion
+##Punkt;Aktion
 Hauptschalter;ein (alle 3)
 Funk;aus
 Treibstoff;check
 man. Bedienschalter;Mitte (automatik)
-Zündschalter;↑ Triebwerk fährt aus
+Zündschalter;↑, Triebwerk fährt aus
 Gashebel;Leerlauf
 Starterknopf (rot auf Knüppel);drücken
-!Magnetcheck;CHT 40° C / RPM 2500–3000
-Zündkreisschalter;↑/↓ max. –300 RPM
+!Magnetcheck;CHT 40° C / RPM 2500 – 3000
+Zündkreisschalter;↑/↓ -300 RPM max.
 Redundanzsystem;↑ Notbetrieb / ↓ Normalbetrieb
+
 #(Eigen)Start
-Punkt;Zustand
+##Punkt;Zustand
 Treibstoff;check
 Kühlflüssigkeit;check (115° C max.)
 Ruder;freigängig
@@ -1411,49 +1517,92 @@ Startstrecke;frei
 Wind;prüfen
 Bremse;lösen
 Höhenruder;voll ziehen
-Gas;Nase oben halten
+Gas;so dass Nase oben bleibt
 ab 40 km/h;Wölbung +2
 ca. 85 km/h;abheben, Höhenruder nachlassen
 bis 95 km/h;flach Fahrt holen
-dann Steigen;VY = 95 km/h
-!Fahrwerk einziehen;verriegeln – Achtung Brandhahn!
+dann Steigen (VY);
+!Fahrwerk;einziehen, verriegeln (!! Achtung Brandhahn !!)
+
 #Steigen
-Punkt;Zustand
+##Punkt;Zustand
 max. 6600 RPM;check
 95 km/h;weiter steigen
-!Kühlflüssigkeit Temp.;≤ 115 °C – sonst schneller / langsamer steigen
+Kühlflüssigkeit Temp.;≤ 115 °C, sonst schneller fliegen & langsamer steigen
+
 #Engine stop
-Punkt;Aktion
+##Punkt;Aktion
 1 min Kühllauf;Wasser ca. 65°C
 Funk;aus
 Geschwindigkeit;95 – 100 km/h
 man. Bedienschalter;Mitte (automatik)
-Zündung;↓ Triebwerk stoppt
-wenn Propeller senkrecht;mit Spiegel prüfen
+Zündung;↓, Triebwerk stoppt
+wenn Propeller senkrecht;check mit Spiegel
 Triebwerk fährt ein;Kontrollampe blinkt grün
 Triebwerk eingefahren;Kontrollampe konst. grün
+
 #before Landing
-Punkt;Zustand
+##Punkt;Zustand
 Flugzeug in Position;check
-Flughöhe;200 m AGL / 800 m MSL
+Flughöhe;200 m AGL (800 m MSL)
 ≤ 130 km/h;set
 Fahrwerk;ausfahren & verriegeln
 Wölbklappe;+2
-Funk;D-KJRR rechter Gegenanflug 07
+Funk;Wächterberg Info, D-KJRR rechter Gegenanflug 07 zur Landung
+
 #Landing
-Punkt;Einstellung
-!105 km/h;set – Klappen max. ½
+##Punkt;Einstellung
+105 km/h;set, Klappen max. ½
+
 #After Landing
-Punkt;Aktion
+##Punkt;Aktion
 Logger noch 5 min laufen lassen;
 Hauptschalter;aus (alle 3)
-#Securing Airplane
-Punkt;Aktion
-Kuller;ab
-Haubenbezug;anbringen`;
 
-const INFO_DEMO = `#Funkfrequenzen
-Station;Frequenz
+#Securing Airplane
+##Punkt;Aktion
+Kuller;ab
+Haubenbezug;anbringen
+
+#ELT 406 MHz
+##Punkt;Aktion
+Einschalten;
+Test (121.5 MHz);H +05, max. 3 beeps
+
+#Equipment List - Motor
+##Item;Inhalt
+2 x 20 L Kanister für Treibstoff;gefüllt mit AVGAS und je 0,4 L Zweitaktöl
+2-Takt Öl;2 x 1 L
+Behälter 13 L;
+Tankschlauch mit Benzinfilter;
+
+#Equipment List - Strom
+##Item;Zustand
+Ladegerät für Flugzeug;
+Ladegerät für Balastwasserpumpe;
+220 V Kabel;
+
+#Equipment List - Wasserballast
+##Item;Zustand
+Kanister für Wasser;
+Füllschlauch mit Filter;
+Pumpe für Wasser;
+Batterie für Wasserpumpe;
+
+#Equipment List - Flugzeug
+##Item;Zustand
+Klebeband;Vorhanden
+Flächenbezüge;Vorhanden
+Batterie C1 + C2;Vorhanden
+
+#Sauerstoff
+##Item;Zustand
+Flaschen;gefüllt
+
+=== Infos ===
+
+#Funkfrequenzen
+##Station;Frequenz
 Notfrequenz;121.500
 Neustadt Tower;123.255
 Neustadt West Radio;130.150
@@ -1480,8 +1629,9 @@ Aigen Radar;118.005
 Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
 Langen Information;119.825 / 129.875
 Samedan;135.325
+
 #Arcus M – Geschwindigkeiten
-Bezeichnung;km/h
+##Bezeichnung;km/h
 VROT (Abheben);85
 VY (beste Steigrate);95
 VT (F-Schlepp);110 – 120
@@ -1493,8 +1643,9 @@ VLO (max. Gear Speed);180
 VX (ger. Sinken / max. Weite);110 – 120
 VPO (Prop. operation);90 – 120
 VAPP (Anflug);105
+
 #Arcus M – Gewichte
-Position;Wert
+##Position;Wert
 Leergewicht;576 kg
 Kraftstoff (16 / 29 L);11,5 / 20,8 kg
 Gepäckfach;max. 2 kg
@@ -1504,8 +1655,9 @@ Zuladung;max. 285 kg
 MTOW;800 kg (51 kg/m²)
 Flächenbelastung (1 PIC);43 kg/m²
 Flächenbelastung (2 PIC);49 kg/m²
+
 #Arcus M – Kraftstoff
-Typ;Angabe
+##Typ;Angabe
 Super bleifrei;≥ ROZ 95
 AVGAS;100 LL
 Tankvolumen;16 L + 28,9 L (Flügel)
@@ -1513,8 +1665,9 @@ Verbrauch Reise;24,5 L/h
 Zweitakt-Mischung;1:50 (0,4 L Öl / 20 L)
 Öl;Castrol ACT>EVO / Super Two Stroke
 Spezifikation;JASO FC oder FD
+
 #LX 9000 – Tasten
-Aktion;Bedienung
+##Aktion;Bedienung
 Aus;I/O > 4 sec
 Lautstärke;● oben links
 Mode;● oben rechts
@@ -1527,8 +1680,9 @@ Nearest Airport;● Near Airport
 Position Report;● Flugplatzliste → REPORT
 Waypoint speichern;● MARK
 Vario/Hawk;Setup → Audio → Vario/Hawk wählen
+
 #Funkgerät Becker – Tasten
-Taste;Funktion
+##Taste;Funktion
 1x kurz;Standard
 2x kurz;Direkt Eingabe
 3x kurz;Kanalwahl
@@ -1540,33 +1694,31 @@ MDE/STO lang;Scan Mode
 SQL kurz;Squelch on/off
 SQL lang;Intercom (IC VOL, IC VOX)
 FRQ-Drehknopf;Drücken + drehen
+
 #Transponder
-Taste;Funktion
+##Taste;Funktion
 I/O;Ein 0.5s/Aus 3s
 MODE;ACS, A-S, Standby`;
 
-function loadChecklistDemo() {
-  sections.checklist.pages = buildPages(parseCSV(CHECKLIST_DEMO), { allowCritical: true });
-  sections.checklist.currentPage = 0;
-  sections.checklist.profileId = null;
-  sections.checklist.profileName = 'Arcus M';
-  mode = 'checklist';
-  showApp();
-}
-function loadInfoDemo() {
+function loadConfigDemo() {
   const apply = csv => {
-    sections.info.pages = buildPages(parseCSV(csv), { allowCritical: false });
+    const { checklist, info } = parseConfig(csv);
+    sections.checklist.pages = checklist;
+    sections.checklist.currentPage = 0;
+    sections.checklist.profileId = null;
+    sections.checklist.profileName = 'Arcus M';
+    sections.info.pages = info;
     sections.info.currentPage = 0;
     sections.info.profileId = null;
     sections.info.profileName = 'Arcus M';
-    mode = 'info';
+    mode = checklist.length ? 'checklist' : 'info';
     showApp();
   };
-  // Try to load the bundled Info.csv; fall back to embedded string if unavailable
-  fetch('./Info.csv')
+  // Try to load bundled Config.csv; fall back to embedded string if unavailable
+  fetch('./Config.csv')
     .then(r => r.ok ? r.text() : Promise.reject())
     .then(apply)
-    .catch(() => apply(INFO_DEMO));
+    .catch(() => apply(CONFIG_DEMO));
 }
 
 // ═══ Init ═══

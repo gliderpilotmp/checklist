@@ -4,13 +4,16 @@
 //            stale-while-revalidate for everything else.
 // ============================================================
 
-const CACHE_NAME = 'arcus-checkliste-v10';
+const CACHE_NAME = 'arcus-checkliste-v11';
 
 // All files that make up the app shell (adjust if you rename files)
 const APP_SHELL = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './Config.csv',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 // ── Install: pre-cache app shell ────────────────────────────
