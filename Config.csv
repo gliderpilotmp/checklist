@@ -125,9 +125,12 @@ Funk;Intercom auf Cockpit
 ##Punkt;Aktion
 LX9000;noch 5 min laufen lassen
 LX9000;Zeiten und Flug auslesen/hochladen
-Geld/Papiere/Proviant/Brillen/Urinal; ausgeräumt
-Batterien;ausgeräumt
+Papiere;ausgeräumt
+Geld, Pass, Handy;ausgeräumt
+Proviant, Trinken;ausgeräumt
 Powerbank;ausgeräumt
+Urinal;ausgeräumt
+Handfunkgerät;ausgeräumt
 Sauerstoff;abgedreht
 ELT;abgedreht
 !Hauptschalter;aus (alle 3 und BWS!)
