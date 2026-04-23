@@ -20,44 +20,34 @@ Offline-fähige Flug-Checklisten mit Infobseiten als Progressive Web App.
 
 ## Installation am Handy
 
-### Option A – Lokaler Server (empfohlen, vollständige PWA)
-
-1. Python auf dem Computer starten:
-   ```bash
-   python3 server.py
-   ```
-2. Angezeigt IP-Adresse im Handy-Browser öffnen:
-   `http://192.168.x.x:8080`
-3. **iOS Safari**: Teilen-Symbol → "Zum Home-Bildschirm"  
-   **Android Chrome**: Menü → "App installieren" oder Banner antippen
-
-> Für HTTPS (vollständige PWA-Features auf manchen Geräten):
-> ```bash
-> pip install cryptography
-> python3 server.py --https
-> ```
-
-### Option B – Webserver (Nginx, Apache, eigenes NAS)
-
-Alle Dateien in ein Verzeichnis legen und als statische Website ausliefern.
-Der Server muss `sw.js` mit dem Header `Service-Worker-Allowed: /` ausliefern.
-
-### Option C – GitHub Pages / Netlify / Cloudflare Pages
-
-1. Dieses Verzeichnis in ein Git-Repository pushen
-2. GitHub Pages / Netlify aktivieren → automatisch HTTPS + globales CDN
-3. URL am Handy öffnen, installieren
+### https://gliderpilotmp.github.io/checklist
+Die URL am Handy öffnen, zum Startbildschirm als App hinzufügen
 
 ---
 
-## CSV-Format
+## CSV-Format für config.csv
 
 ```
+=== CHECKLIST ===
+
 #Kapitelname
 ##Spalte1;Spalte2;Hinweis (optional)
 Zeile1a;Zeile1b
 !KritischeZeile;Wert
+
 #Nächstes Kapitel
+##Spalte1;Spalte2;Hinweis (optional)
+...
+
+=== INFOS ===
+
+#Kapitelname
+##Spalte1;Spalte2;Hinweis (optional)
+Zeile1a;Zeile1b
+!KritischeZeile;Wert
+
+#Nächstes Kapitel
+##Spalte1;Spalte2;Hinweis (optional)
 ...
 ```
 
@@ -85,7 +75,3 @@ Zeile1a;Zeile1b
 - ✅ PWA installierbar (Android Chrome-Banner, iOS Safari "Add to Homescreen")
 - ✅ Safe-Area-Unterstützung (Notch, Dynamic Island)
 - ✅ Update-Banner wenn neue SW-Version verfügbar
-
----
-
-*Checklisten und Infos - Martin Pirker 2026*
