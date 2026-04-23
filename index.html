@@ -719,6 +719,20 @@ if ('serviceWorker' in navigator) {
       // NOTE: We intentionally do NOT listen for 'controllerchange' to
       // trigger an automatic reload. The reload only happens when the user
       // taps "Jetzt laden" → applyUpdate() → SKIP_WAITING → we reload once.
+
+      // Explicitly check for updates on startup and when app comes to foreground.
+      // This is critical for installed PWAs on iOS/Android which don't
+      // automatically trigger updatefound when relaunched.
+      function checkForUpdate() {
+        swRegistration.update().catch(() => {});
+      }
+      // Check once 3s after start (let the app settle first)
+      setTimeout(checkForUpdate, 3000);
+      // Re-check every time the app comes back to foreground
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkForUpdate();
+      });
+
     } catch (e) { console.warn('SW failed', e); }
   });
 }
@@ -751,6 +765,15 @@ function applyUpdate() {
 function dismissUpdate() {
   document.getElementById('update-banner').classList.remove('show');
 }
+
+// Listen for messages from the service worker
+// (e.g. when a new SW activates and broadcasts to all clients)
+navigator.serviceWorker?.addEventListener('message', event => {
+  if (event.data?.type === 'NEW_VERSION_AVAILABLE') {
+    pendingWorker = swRegistration?.waiting || null;
+    document.getElementById('update-banner').classList.add('show');
+  }
+});
 
 // ═══ Install prompt + online status ═══
 let deferredInstallPrompt = null;

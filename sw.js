@@ -4,7 +4,7 @@
 //            stale-while-revalidate for everything else.
 // ============================================================
 
-const CACHE_NAME = 'arcus-checkliste-v16';
+const CACHE_NAME = 'arcus-checkliste-v17';
 
 // All files that make up the app shell (adjust if you rename files)
 const APP_SHELL = [
@@ -29,13 +29,21 @@ self.addEventListener('install', event => {
           })
         )
       );
-      // NOTE: no self.skipWaiting() here — the SW waits in 'installed' state
-      // until the user taps "Jetzt laden". Only then does SKIP_WAITING fire.
     })
+  );
+  // Skip waiting only on first-ever install (no previous controller).
+  // On updates, we wait for the user to tap "Jetzt laden".
+  event.waitUntil(
+    self.clients.matchAll({ includeUncontrolled: true, type: 'window' })
+      .then(clients => {
+        // If no clients are controlled by a SW yet, this is a fresh install
+        const isFirstInstall = clients.every(c => !c.url.includes('sw.js'));
+        if (isFirstInstall) self.skipWaiting();
+      })
   );
 });
 
-// ── Activate: delete old caches ─────────────────────────────
+// ── Activate: delete old caches and claim clients ───────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -48,6 +56,15 @@ self.addEventListener('activate', event => {
           })
       )
     ).then(() => self.clients.claim())
+     .then(async () => {
+       // Broadcast to all open windows/tabs that a new version is active.
+       // This allows the app to show the update banner even on mobile PWAs
+       // where updatefound / controllerchange may not fire reliably.
+       const allClients = await self.clients.matchAll({ type: 'window' });
+       allClients.forEach(client => {
+         client.postMessage({ type: 'NEW_VERSION_AVAILABLE' });
+       });
+     })
   );
 });
 
@@ -99,5 +116,9 @@ self.addEventListener('fetch', event => {
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CHECK_UPDATE') {
+    // Client is asking if there's a newer SW waiting — respond
+    event.source?.postMessage({ type: 'UPDATE_STATUS', waiting: !!self.registration.waiting });
   }
 });
