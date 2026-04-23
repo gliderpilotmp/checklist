@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Checkliste">
 <meta name="theme-color" content="#1a1a1a" id="theme-color-meta">
 
-<title>Arcus M Checkliste</title>
+<title>Checkliste und Info</title>
 
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
@@ -347,11 +347,11 @@
   body[data-mode="checklist"] tr.row { cursor: pointer; }
 
   tr.row td {
-    padding: 13px 10px; font-size: 15px;
+    padding: 13px 10px; font-size: var(--row-font-size, 15px);
     line-height: 1.35; vertical-align: middle; color: var(--text);
   }
   tr.row td:first-child { padding-left: 16px; font-weight: 500; }
-  tr.row td:last-child { padding-right: 16px; color: var(--text-dim); text-align: right; font-size: 14px; }
+  tr.row td:last-child { padding-right: 16px; color: var(--text-dim); text-align: right; font-size: calc(var(--row-font-size, 15px) - 1px); }
 
   body[data-mode="info"] tr.row td:last-child {
     color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500;
@@ -549,6 +549,12 @@
 
   <div id="profile-list-container" style="width:100%; display:flex; justify-content:center;"></div>
 
+  <div id="back-to-app-btn" style="display:none; width:100%; max-width:380px;">
+    <button class="btn secondary" style="justify-content:space-between;" onclick="backToApp()">
+      <span>Zurück zur App</span><span style="font-size:18px; line-height:1;">×</span>
+    </button>
+  </div>
+
   <input type="file" id="file-input-config" accept=".csv,.txt" style="display:none">
 
   <div class="btn-row">
@@ -569,9 +575,7 @@ Zeile1a;Zeile1b<br>
 <br>
 #Kapitelname<br>
 ##Spalte1;Spalte2<br>
-Zeile1a;Zeile1b<br>
-<br>
-<em>`!` nur im Checklist-Bereich wirksam.</em>
+Zeile1a;Zeile1b
   </div>
 </div>
 
@@ -611,11 +615,8 @@ Zeile1a;Zeile1b<br>
   <div class="menu-backdrop" onclick="closeMenu()"></div>
   <div class="menu-sheet">
     <div class="menu-section">Profile</div>
-    <div class="menu-item" id="mi-save-cl" onclick="openSaveDialog('checklist')">
-      <span class="menu-icon">💾</span> Checkliste speichern
-    </div>
-    <div class="menu-item" id="mi-save-info" onclick="openSaveDialog('info')">
-      <span class="menu-icon">💾</span> Info speichern
+    <div class="menu-item" id="mi-save-config" onclick="openSaveDialog()">
+      <span class="menu-icon">💾</span> Konfiguration speichern
     </div>
     <div class="menu-item" onclick="backToStart()">
       <span class="menu-icon">🏠</span> Zur Profilübersicht
@@ -625,6 +626,10 @@ Zeile1a;Zeile1b<br>
     <div class="menu-item" id="mi-autoadv" onclick="toggleAutoAdvance()">
       <span class="menu-icon">⏩</span> Auto-Weiter (Checkliste)
       <span class="menu-badge" id="aa-badge">aus</span>
+    </div>
+    <div class="menu-item" onclick="cycleRowFontSize()">
+      <span class="menu-icon">𝐀</span> Schriftgröße Zeilen
+      <span class="menu-badge" id="font-size-badge">Klein</span>
     </div>
 
     <div class="menu-section">Aktionen</div>
@@ -648,9 +653,9 @@ Zeile1a;Zeile1b<br>
 <div class="dialog-overlay" id="save-dialog" onclick="onOverlayClick(event)">
   <div class="dialog">
     <div class="dialog-handle"></div>
-    <h3 id="save-dialog-title">Profil speichern</h3>
+    <h3>Konfiguration speichern</h3>
     <p>Name für dieses Profil:</p>
-    <input type="text" id="save-name" placeholder="z.B. Arcus M D-KJRR" maxlength="60">
+    <input type="text" id="save-name" placeholder="z.B. Arcus M" maxlength="60">
     <div class="dialog-buttons">
       <button class="btn secondary" onclick="closeSaveDialog()">Abbrechen</button>
       <button class="btn" onclick="saveAsProfile()">Speichern</button>
@@ -664,11 +669,15 @@ Zeile1a;Zeile1b<br>
     <div class="dialog-handle"></div>
     <img class="about-logo" src="./icons/icon-192.png" alt="App Icon">
     <h3 class="about-title">About Checklist &amp; Info</h3>
-    <p class="about-desc">Offline-fähige Flug-Checkliste und Info-App für Segelflugzeuge als Progressive Web App.</p>
+    <p class="about-desc">Offline-fähige Flug-Checkliste und Info-App.</p>
     <div class="about-divider"></div>
     <div class="about-row">
       <span class="about-label">© Autor</span>
       <span class="about-value">Martin Pirker</span>
+    </div>
+    <div class="about-row">
+      <span class="about-label">Version</span>
+      <span class="about-value">1.15</span>
     </div>
     <div class="about-row">
       <span class="about-label">Kontakt</span>
@@ -766,7 +775,7 @@ const sections = {
   info:      { pages: [], currentPage: 0, profileId: null, profileName: '' }
 };
 let mode = 'checklist';
-let settings = { theme: 'dark', autoAdvance: false };
+let settings = { theme: 'dark', autoAdvance: false, rowFontSize: 0 };
 let wakeLock = null;
 
 const SESSION_KEY  = 'checklist-session-v4';
@@ -824,6 +833,7 @@ function saveSettings() { lsSet(SETTINGS_KEY, settings); }
 function loadSettings() {
   Object.assign(settings, lsGet(SETTINGS_KEY, {}));
   applyTheme();
+  applyRowFontSize();
   const b = document.getElementById('aa-badge');
   b.textContent = settings.autoAdvance ? 'an' : 'aus';
   b.classList.toggle('on', settings.autoAdvance);
@@ -847,12 +857,21 @@ function renderProfileList() {
   profiles.slice().sort((a,b) => (b.updated||0) - (a.updated||0)).forEach(p => {
     const el = document.createElement('div');
     el.className = 'profile-item';
-    const pg = p.data.pages.length;
-    const ro = p.data.pages.reduce((a, x) => a + x.rows.length, 0);
-    const kind = p.kind || 'checklist';
-    const iconCls = kind === 'info' ? 'info' : 'cl';
-    const iconCh  = kind === 'info' ? 'ⓘ' : '✓';
-    const kindLbl = kind === 'info' ? 'Info' : 'Checkliste';
+    let pg, ro, iconCls, iconCh, kindLbl;
+    if (p.kind === 'config') {
+      const clPages = p.data.checklist?.pages || [];
+      const inPages = p.data.info?.pages || [];
+      pg = clPages.length + inPages.length;
+      ro = [...clPages, ...inPages].reduce((a, x) => a + x.rows.length, 0);
+      iconCls = 'cl'; iconCh = '✈'; kindLbl = 'Konfiguration';
+    } else {
+      pg = p.data.pages.length;
+      ro = p.data.pages.reduce((a, x) => a + x.rows.length, 0);
+      const kind = p.kind || 'checklist';
+      iconCls = kind === 'info' ? 'info' : 'cl';
+      iconCh  = kind === 'info' ? 'ⓘ' : '✓';
+      kindLbl = kind === 'info' ? 'Info' : 'Checkliste';
+    }
     el.innerHTML = `
       <div class="p-icon ${iconCls}">${iconCh}</div>
       <div class="p-info">
@@ -878,31 +897,48 @@ function renderProfileList() {
 function loadProfile(id) {
   const p = getProfiles().find(x => x.id === id);
   if (!p) return;
-  const kind = p.kind || 'checklist';
-  const section = sections[kind];
-  section.pages = p.data.pages.map(pg => ({
+
+  const deserPages = pages => (pages || []).map(pg => ({
     ...pg,
     critical: pg.critical || pg.rows.map(() => false),
     hints:    pg.hints    || pg.rows.map(() => ''),
     checked: new Set(pg.data_checked || [])
   }));
-  section.currentPage = p.data.currentPage || 0;
-  section.profileId = id;
-  section.profileName = p.name;
-  mode = kind;
+
+  if (p.kind === 'config') {
+    // New unified config profile
+    sections.checklist.pages = deserPages(p.data.checklist?.pages);
+    sections.checklist.currentPage = p.data.checklist?.currentPage || 0;
+    sections.checklist.profileId = id;
+    sections.checklist.profileName = p.name;
+    sections.info.pages = deserPages(p.data.info?.pages);
+    sections.info.currentPage = p.data.info?.currentPage || 0;
+    sections.info.profileId = id;
+    sections.info.profileName = p.name;
+    mode = sections.checklist.pages.length ? 'checklist' : 'info';
+  } else {
+    // Legacy single-section profile
+    const kind = p.kind || 'checklist';
+    const section = sections[kind];
+    section.pages = deserPages(p.data.pages);
+    section.currentPage = p.data.currentPage || 0;
+    section.profileId = id;
+    section.profileName = p.name;
+    mode = kind;
+  }
   showApp();
   showToast(`"${p.name}" geladen`);
 }
 
 // ── Save dialog ──
-let saveDialogKind = 'checklist';
-function openSaveDialog(kind) {
-  saveDialogKind = kind;
-  if (!sections[kind].pages.length) { showToast('Nichts zu speichern'); closeMenu(); return; }
+function openSaveDialog() {
+  if (!sections.checklist.pages.length && !sections.info.pages.length) {
+    showToast('Nichts zu speichern'); closeMenu(); return;
+  }
   closeMenu();
-  document.getElementById('save-dialog-title').textContent =
-    kind === 'info' ? 'Info-Profil speichern' : 'Checklisten-Profil speichern';
-  document.getElementById('save-name').value = sections[kind].profileName || '';
+  // Use existing profile name if both sections share one
+  const name = sections.checklist.profileName || sections.info.profileName || '';
+  document.getElementById('save-name').value = name;
   document.getElementById('save-dialog').classList.add('open');
   setTimeout(() => document.getElementById('save-name').focus(), 200);
 }
@@ -920,27 +956,31 @@ function closeAbout() {
 function saveAsProfile() {
   const name = document.getElementById('save-name').value.trim();
   if (!name) { showToast('Bitte Namen eingeben'); return; }
-  const kind = saveDialogKind;
-  const section = sections[kind];
   const all = getProfiles();
-  const idx = all.findIndex(p => p.name === name && (p.kind || 'checklist') === kind);
+  // Config profiles store both sections together (kind: 'config')
+  const idx = all.findIndex(p => p.name === name && p.kind === 'config');
   const id = idx >= 0 ? all[idx].id : 'p' + Date.now();
+
+  const serSec = sec => sec.pages.map(p => ({
+    title: p.title, headerRow: p.headerRow,
+    rows: p.rows, critical: p.critical, hints: p.hints,
+    data_checked: [...p.checked]
+  }));
+
   const entry = {
-    id, name, kind, updated: Date.now(),
+    id, name, kind: 'config', updated: Date.now(),
     data: {
-      pages: section.pages.map(p => ({
-        title: p.title, headerRow: p.headerRow,
-        rows: p.rows, critical: p.critical, hints: p.hints,
-        data_checked: [...p.checked]
-      })),
-      currentPage: section.currentPage
+      checklist: { pages: serSec(sections.checklist), currentPage: sections.checklist.currentPage },
+      info:      { pages: serSec(sections.info),      currentPage: sections.info.currentPage }
     }
   };
   if (idx >= 0) all[idx] = entry; else all.push(entry);
   setProfiles(all);
-  section.profileId = id;
-  section.profileName = name;
-  if (mode === kind) updateProfileBar();
+  sections.checklist.profileId = id;
+  sections.checklist.profileName = name;
+  sections.info.profileId = id;
+  sections.info.profileName = name;
+  updateProfileBar();
   closeSaveDialog();
   showToast(`"${name}" gespeichert`);
 }
@@ -1200,8 +1240,8 @@ function render() {
   document.getElementById('prev-btn').disabled = section.currentPage === 0;
   document.getElementById('next-btn').disabled = section.currentPage >= section.pages.length - 1;
 
-  document.getElementById('mi-save-cl').classList.toggle('disabled',   sections.checklist.pages.length === 0);
-  document.getElementById('mi-save-info').classList.toggle('disabled', sections.info.pages.length === 0);
+  document.getElementById('mi-save-config').classList.toggle('disabled',
+    sections.checklist.pages.length === 0 && sections.info.pages.length === 0);
   document.getElementById('mi-reset-page').classList.toggle('disabled', mode === 'info' || !p);
   document.getElementById('mi-reset-all').classList.toggle('disabled',  mode === 'info' || section.pages.length === 0);
   document.getElementById('mi-autoadv').classList.toggle('disabled', mode === 'info');
@@ -1283,6 +1323,16 @@ function backToStart() {
   document.getElementById('app-screen').classList.remove('active');
   document.getElementById('upload-screen').style.display = 'flex';
   renderProfileList();
+  // Show "Zurück zur App" button only when app already has data loaded
+  const hasData = sections.checklist.pages.length > 0 || sections.info.pages.length > 0;
+  const btn = document.getElementById('back-to-app-btn');
+  if (btn) btn.style.display = hasData ? 'flex' : 'none';
+}
+
+function backToApp() {
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('app-screen').classList.add('active');
+  render();
 }
 
 function openMenu() { document.getElementById('menu').classList.add('open'); }
@@ -1305,6 +1355,27 @@ function toggleAutoAdvance() {
   b.classList.toggle('on', settings.autoAdvance);
   saveSettings(); closeMenu();
   showToast('Auto-Weiter ' + (settings.autoAdvance ? 'aktiv' : 'deaktiviert'));
+}
+
+const ROW_FONT_SIZES = [
+  { label: 'Klein',  size: 15 },
+  { label: 'Normal', size: 17 },
+  { label: 'Groß',   size: 19 }
+];
+
+function applyRowFontSize() {
+  const idx = settings.rowFontSize || 0;
+  const sz = ROW_FONT_SIZES[idx]?.size || 15;
+  document.documentElement.style.setProperty('--row-font-size', sz + 'px');
+  const badge = document.getElementById('font-size-badge');
+  if (badge) badge.textContent = ROW_FONT_SIZES[idx]?.label || 'Klein';
+}
+
+function cycleRowFontSize() {
+  settings.rowFontSize = ((settings.rowFontSize || 0) + 1) % ROW_FONT_SIZES.length;
+  applyRowFontSize();
+  saveSettings();
+  showToast('Schriftgröße: ' + ROW_FONT_SIZES[settings.rowFontSize]?.label);
 }
 
 async function toggleWakeLock() {
@@ -1383,14 +1454,18 @@ function showApp() {
 }
 
 // ═══ Demo content ═══
-function loadChecklistDemo() {
+function loadConfigDemo() {
   const apply = csv => {
-    const { checklist } = parseConfig(csv);
+    const { checklist, info } = parseConfig(csv);
     sections.checklist.pages = checklist;
     sections.checklist.currentPage = 0;
     sections.checklist.profileId = null;
     sections.checklist.profileName = 'Arcus M';
-    mode = 'checklist';
+    sections.info.pages = info;
+    sections.info.currentPage = 0;
+    sections.info.profileId = null;
+    sections.info.profileName = 'Arcus M';
+    mode = checklist.length ? 'checklist' : 'info';
     showApp();
   };
   fetch('./Config.csv')
@@ -1399,114 +1474,82 @@ function loadChecklistDemo() {
     .catch(() => apply(CONFIG_DEMO));
 }
 
-function loadInfoDemo() {
-  const apply = csv => {
-    const { info } = parseConfig(csv);
-    sections.info.pages = info;
-    sections.info.currentPage = 0;
-    sections.info.profileId = null;
-    sections.info.profileName = 'Arcus M';
-    mode = 'info';
-    showApp();
-  };
-  fetch('./Info.csv')
-    .then(r => r.ok ? r.text() : Promise.reject())
-    .then(apply)
-    .catch(() => apply(CONFIG_DEMO)); // Nutzt CONFIG_DEMO als Fallback
-}
-
 const CONFIG_DEMO = `=== Checklist ===
 
 #Aufbau
 ##Schritt;Aktion
-linker Flügel zuerst;
-Aufbauhilfe;Nähe Fahrwerk
-Rechter Flügel;Tank-Anschlüsse zuerst
+Seitenruderbatterie;im Heck und angeschlossen
+Knüppel;gerade und mittig
+Wölbklappe;auf 0 (L wenn ohne Aufrüsthilfe)
+Bremsklappe;entriegelt
+Wasserhahn;zu (vor)
+Flügelstütze;links
+Linker Flügel zuerst;mit Hauptbolzen 3cm sichern
+Tank-Anschlüsse;Tank- und Belüftungschlauch anschließen
 
-#Abbau
-##Schritt;Aktion
-Aufbauhilfe;vor ersten Knick
-
-#Cabin Check
+#Daily check
 ##Punkt;Zustand
-frei von Fremdkörpern?;check
 Hauptbolzen;gesichert
+Hauptrad und Spornrad;4 bar | 3 bar
+Kraftstoffmenge?;getankt
+Batterien C1 & C2;fest & angeschlossen, Schalter auf C2
 Pedale & Knüppel;freigängig
-Batterien C1 & C2;fest & angeschlossen
-Brandhahn;offen
-Kraftstoffmenge?;check
-Funk;ein; 123.475 MHz
-Motor;ausfahren mit manuellem Schalter
-Hauptschalter;aus (alle 3)
+Rumpf und Flügel ohne Dellen;check
+Ruder freigängig;check
+Höhenruder links und rechts bewegen; Ruderklappe verzieht sich nicht
+Seitenruderbeschlag;check
 
-#Walk arround
+#Motorcheck
 ##Punkt;Zustand
-wenn Wasser;Flächen waagerecht
-Kuller;ab
-Bugrad;3,0 hPa
-Hauptrad;4,0 hPa
-Flügelnase links;ohne Dellen
-Bremsklappe links;eingefahren
-Außenflügel links;gesichert
-Wölbklappe links;gegenläufig, verbunden
-!Motor;
-Zündung;aus
+Motor;manuell ausfahren
+Wasserpumpe läuft;Zündung ein, check, Zündung aus
+!Motorcheck ;Zündung aus
 Kühlflüssigkeit;ausreichend (Schlauch)
-!Wasserpumpe;läuft
 Propeller;check
-Schrauben;fest
+Zahnriemen;check
+Auspuff;check
+Starterritzel;check
+Schrauben und Spindelantrieb;fest
 Zündanlage;fest
-Rumpf links;ohne Dellen
-P STAT (1m vor SL);sauber, frei
-Höhenleitwerk;befestigt
-TEK Düse;befestigt, frei, waagerecht
-Höhenruder;freigängig
-Seitenruder;freigängig
-Tankentlüftung;frei
-Spornrad;3,0 hPa
-Rumpf rechts;ohne Dellen
-Wölbklappe rechts;verbunden
-Außenflügel rechts;gesichert
-Bremsklappe rechts;eingefahren
-Flügelnase rechts;ohne Dellen
-P GES;frei
 
-#Passenger Instruction
-##Punkt;Aktion
-Kommandos;
-Haubennotabwurf;zeigen
-Gurte, Ausstieg;zeigen
-Fallschirm;zeigen
+#Vor dem Flug
+##Punkt;Zustand
+Düse;montiert
+ELT;ein
+Beladung;Trimgewicht & Hecktank gecheckt
+Tankinhalt;14l
+Betankungsschlauch;im Gepäckfach
+Sauerstoff;gefüllt & EDS angeschlossen
+!Motorcheck;durchgeführt
+Papiere;verstaut
+Geld, Pass, Telefonliste, Handy;verstaut
+Proviant, Trinken;verstaut
+Powerbank;verstaut
+Urinal;verstaut
+Warnweste;verstaut
+Handfunkgerät;verstaut
+LX9000;Airports, Wendepunkte, Task geladen
 
-#Tanken / Öl
-##Treibstoff;Menge / Zeit
-Sup. blfr. ≥ ROZ 95;16,0 L / 15,7 L / 00:23
-AVGAS 100LL;28,9 L / 28,2 L / 01:09
-Inhalt / ausfliegbar / Zeit;(bei 24,5 L/h Verbrauch)
-Zweitaktöl;1:50 = 0,4 L Öl / 20 L Treibstoff
-Öl-Typen;Castrol ACT>EVO / Castrol Super Two Stroke
-Spec.;JASO FC oder FD
-
-#vor Start
+#Vor Start
 ##Punkt;Zustand
 Kuller ab;check
 Ballast;check
 Fallschirm angelegt;check
 Pilot angeschnallt;check
 Kabinenhaube;verschlossen
+Funk;Frequenz eingestellt
+Kopfhörer;Intercom eingestellt
+Höhenmesser;eingestellt
 Haubennotabwurf;bekannt
 Ruder;freigängig
-Querruder;links oben / rechts oben
 Bremsklappen;aus / ein / verriegelt
 Wölbklappen;-1
-Höhenmesser;600 m
-Funk;ein; 123.475 MHz
-Sprechprobe;Wächtersberg Info, D-KJRR Sprechprobe
 
 #Engine Start
 ##Punkt;Aktion
+Kopfhörer;auf
+Funk;auf Intercom
 Hauptschalter;ein (alle 3)
-Funk;aus
 Treibstoff;check
 man. Bedienschalter;Mitte (automatik)
 Zündschalter;↑, Triebwerk fährt aus
@@ -1518,6 +1561,8 @@ Redundanzsystem;↑ Notbetrieb / ↓ Normalbetrieb
 
 #(Eigen)Start
 ##Punkt;Zustand
+Transponder;ein
+Benzinhahn;offen
 Treibstoff;check
 Kühlflüssigkeit;check (115° C max.)
 Ruder;freigängig
@@ -1531,15 +1576,14 @@ Höhenruder;voll ziehen
 Gas;so dass Nase oben bleibt
 ab 40 km/h;Wölbung +2
 ca. 85 km/h;abheben, Höhenruder nachlassen
-bis 95 km/h;flach Fahrt holen
-dann Steigen (VY);
-!Fahrwerk;einziehen, verriegeln (!! Achtung Brandhahn !!)
+bis 95 km/h;flach Fahrt holen dann Steigen (95kmh)
 
 #Steigen
 ##Punkt;Zustand
 max. 6600 RPM;check
 95 km/h;weiter steigen
 Kühlflüssigkeit Temp.;≤ 115 °C, sonst schneller fliegen & langsamer steigen
+!Fahrwerk;einziehen, verriegeln (Achtung Brandhahn!)
 
 #Engine stop
 ##Punkt;Aktion
@@ -1551,72 +1595,26 @@ Zündung;↓, Triebwerk stoppt
 wenn Propeller senkrecht;check mit Spiegel
 Triebwerk fährt ein;Kontrollampe blinkt grün
 Triebwerk eingefahren;Kontrollampe konst. grün
+Funk;Intercom auf Cockpit
 
-#before Landing
-##Punkt;Zustand
-Flugzeug in Position;check
-Flughöhe;200 m AGL (800 m MSL)
-≤ 130 km/h;set
-Fahrwerk;ausfahren & verriegeln
-Wölbklappe;+2
-Funk;Wächterberg Info, D-KJRR rechter Gegenanflug 07 zur Landung
-
-#Landing
-##Punkt;Einstellung
-105 km/h;set, Klappen max. ½
-
-#After Landing
+#Nach der Landung
 ##Punkt;Aktion
-Logger noch 5 min laufen lassen;
-Hauptschalter;aus (alle 3)
-
-#Securing Airplane
-##Punkt;Aktion
-Kuller;ab
-Haubenbezug;anbringen
-
-#ELT 406 MHz
-##Punkt;Aktion
-Einschalten;
-Test (121.5 MHz);H +05, max. 3 beeps
-
-#Equipment List - Motor
-##Item;Inhalt
-2 x 20 L Kanister für Treibstoff;gefüllt mit AVGAS und je 0,4 L Zweitaktöl
-2-Takt Öl;2 x 1 L
-Behälter 13 L;
-Tankschlauch mit Benzinfilter;
-
-#Equipment List - Strom
-##Item;Zustand
-Ladegerät für Flugzeug;
-Ladegerät für Balastwasserpumpe;
-220 V Kabel;
-
-#Equipment List - Wasserballast
-##Item;Zustand
-Kanister für Wasser;
-Füllschlauch mit Filter;
-Pumpe für Wasser;
-Batterie für Wasserpumpe;
-
-#Equipment List - Flugzeug
-##Item;Zustand
-Klebeband;Vorhanden
-Flächenbezüge;Vorhanden
-Batterie C1 + C2;Vorhanden
-
-#Sauerstoff
-##Item;Zustand
-Flaschen;gefüllt
+LX9000;noch 5 min laufen lassen
+LX9000;Zeiten und Flug auslesen/hochladen
+Geld/Papiere/Proviant/Brillen/Urinal; ausgeräumt
+Batterien;ausgeräumt
+Powerbank;ausgeräumt
+Sauerstoff;abgedreht
+ELT;abgedreht
+!Hauptschalter;aus (alle 3 und BWS!)
 
 === Infos ===
 
 #Funkfrequenzen
 ##Station;Frequenz
-Notfrequenz;121.500
-Neustadt Tower;123.255
+Notfrequenz/ELT;121.500
 Neustadt West Radio;130.150
+Neustadt Tower;123.255
 Neustadt Ost Radio;122.650
 Police Radio;125.135
 Segelflug Quatsch;123.430 / 123.425
@@ -1641,6 +1639,35 @@ Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
 Langen Information;119.825 / 129.875
 Samedan;135.325
 
+#AIS | FIC 
+##Station;Nummer
+LOXN Betriebsleiter Handy;+43 660 288904
+LOXN Militär AIS Flugplananmeldung;050 2012 068840
+LOXN Militär Turm;+43 50 2012 068830
+AIS Flugplan Wien;+43 (5) 1703 3211
+AIS Wien Supervisor (Flugvorhaben);+43 (5) 1703 3211
+Vienna Terminal Flight Information (TFI);118,525 MHz (Osten) nur 9:00 loc – ECET / 21:00 loc sonst Nord rufen
+Vienna Flight Information Center (FIC);134,625 MHz (Norden), 124,4  MHz  (Süden Westen) 
+Abmelden von Wien Information sonst wird nach 30min nicht erreichbar die Rettungskette gestartet;FIC Wien: +43 (0)5 1703 2143
+SAR-Such und Rettungsdienst;RCC Zentrale 24h: +43(1) 798 83 80 +43(0) 51703 7777 oder 7778
+Email;rcc.vienna@austrocontrol.at
+ATIS Innsbruck; 126,02 Mhz Tel: +43 (0)5 1703 6631 
+Innsbruck Durchflug Nordkette frei?;"temporary reserved area CHARLY active"
+Danger area LIMA aktiv?;"temporary reserved area LIMA active"
+Internationale Notfrequenz;121,5 MHz
+
+#Arcus M – Flaps
+##Bezeichnung;km/h
+Rollen;-2
+Abheben + Steigen 95 kmh;+2
+Kreisen; L | +2
+Gleiten 100-110 kmh;+2
+Gleiten 110-120 kmh;+1
+Gleiten 120-145 kmh;0
+Gleiten 145-170 kmh;-1
+Gleiten 170-200 kmh;-2
+Gleiten 200-280 kmh;S
+
 #Arcus M – Geschwindigkeiten
 ##Bezeichnung;km/h
 VROT (Abheben);85
@@ -1660,7 +1687,7 @@ VAPP (Anflug);105
 Leergewicht;576 kg
 Kraftstoff (16 / 29 L);11,5 / 20,8 kg
 Gepäckfach;max. 2 kg
-Pilot vorne;70 – 115 kg
+Pilot vorne;82 – 115 kg
 Pilot hinten;max. 115 kg
 Zuladung;max. 285 kg
 MTOW;800 kg (51 kg/m²)
@@ -1680,17 +1707,17 @@ Spezifikation;JASO FC oder FD
 #LX 9000 – Tasten
 ##Aktion;Bedienung
 Aus;I/O > 4 sec
-Lautstärke;● oben links
-Mode;● oben rechts
-Zoom;● unten links
-Seiten;● unten rechts
+Lautstärke;oben links
+Mode (Airport, Waypoint, Task);oben rechts
+Zoom;unten links
+Seiten;unten rechts
 Vario/SC umschalten;Knüppeltaste
-MC/Ballast;● Taste rechts unten → MC/BAL
+MC/Ballast;Taste rechts unten → MC/BAL
 QNH anpassen;Setup → QNH → SELECT
-Nearest Airport;● Near Airport
-Position Report;● Flugplatzliste → REPORT
-Waypoint speichern;● MARK
-Vario/Hawk;Setup → Audio → Vario/Hawk wählen
+Nearest Airport;Nearest Seite 
+Position Report;Flugplatzliste → REPORT
+Waypoint speichern;MARK
+Vario/Hawk;Setup→Audio→ Vario/Hawk wählen
 
 #Funkgerät Becker – Tasten
 ##Taste;Funktion

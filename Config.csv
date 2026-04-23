@@ -1,7 +1,5 @@
 === Checklist ===
 
-=== Checklist ===
-
 #Aufbau
 ##Schritt;Aktion
 Seitenruderbatterie;im Heck und angeschlossen
@@ -16,10 +14,10 @@ Tank-Anschlüsse;Tank- und Belüftungschlauch anschließen
 #Daily check
 ##Punkt;Zustand
 Hauptbolzen;gesichert
-Hauptrad und Spornrad;4 bar und 3 bar
-Kraftstoffmenge?;voll getankt
+Hauptrad und Spornrad;4 bar | 3 bar
+Kraftstoffmenge?;getankt
+Batterien C1 & C2;fest & angeschlossen, Schalter auf C2
 Pedale & Knüppel;freigängig
-Batterien C1 & C2;fest & angeschlossen, Schalter C2
 Rumpf und Flügel ohne Dellen;check
 Ruder freigängig;check
 Höhenruder links und rechts bewegen; Ruderklappe verzieht sich nicht
@@ -41,7 +39,7 @@ Zündanlage;fest
 #Vor dem Flug
 ##Punkt;Zustand
 Düse;montiert
-ELT;on
+ELT;ein
 Beladung;Trimgewicht & Hecktank gecheckt
 Tankinhalt;14l
 Betankungsschlauch;im Gepäckfach
@@ -123,36 +121,24 @@ Triebwerk fährt ein;Kontrollampe blinkt grün
 Triebwerk eingefahren;Kontrollampe konst. grün
 Funk;Intercom auf Cockpit
 
-#before Landing
-##Punkt;Zustand
-Flugzeug in Position;check
-Flughöhe;200 m AGL (800 m MSL)
-≤ 130 km/h;set
-Fahrwerk;ausfahren & verriegeln
-Wölbklappe;+2
-
-#Landing
-##Punkt;Einstellung
-105 km/h;set, Klappen max. ½
-
 #Nach der Landung
 ##Punkt;Aktion
 LX9000;noch 5 min laufen lassen
 LX9000;Zeiten und Flug auslesen/hochladen
-!Hauptschalter;aus (alle 3)
-
-#Securing Airplane
-##Punkt;Aktion
-Kuller;ab
-Haubenbezug;anbringen
+Geld/Papiere/Proviant/Brillen/Urinal; ausgeräumt
+Batterien;ausgeräumt
+Powerbank;ausgeräumt
+Sauerstoff;abgedreht
+ELT;abgedreht
+!Hauptschalter;aus (alle 3 und BWS!)
 
 === Infos ===
 
 #Funkfrequenzen
 ##Station;Frequenz
-Notfrequenz;121.500
-Neustadt Tower;123.255
+Notfrequenz/ELT;121.500
 Neustadt West Radio;130.150
+Neustadt Tower;123.255
 Neustadt Ost Radio;122.650
 Police Radio;125.135
 Segelflug Quatsch;123.430 / 123.425
@@ -177,6 +163,35 @@ Alps Radar;119.225 (CTA Arlberg West) ab 15500ft
 Langen Information;119.825 / 129.875
 Samedan;135.325
 
+#AIS | FIC 
+##Station;Nummer
+LOXN Betriebsleiter Handy;+43 660 288904
+LOXN Militär AIS Flugplananmeldung;050 2012 068840
+LOXN Militär Turm;+43 50 2012 068830
+AIS Flugplan Wien;+43 (5) 1703 3211
+AIS Wien Supervisor (Flugvorhaben);+43 (5) 1703 3211
+Vienna Terminal Flight Information (TFI);118,525 MHz (Osten) nur 9:00 loc – ECET / 21:00 loc sonst Nord rufen
+Vienna Flight Information Center (FIC);134,625 MHz (Norden), 124,4  MHz  (Süden Westen) 
+Abmelden von Wien Information sonst wird nach 30min nicht erreichbar die Rettungskette gestartet;FIC Wien: +43 (0)5 1703 2143
+SAR-Such und Rettungsdienst;RCC Zentrale 24h: +43(1) 798 83 80 +43(0) 51703 7777 oder 7778
+Email;rcc.vienna@austrocontrol.at
+ATIS Innsbruck; 126,02 Mhz Tel: +43 (0)5 1703 6631 
+Innsbruck Durchflug Nordkette frei?;"temporary reserved area CHARLY active"
+Danger area LIMA aktiv?;"temporary reserved area LIMA active"
+Internationale Notfrequenz;121,5 MHz
+
+#Arcus M – Flaps
+##Bezeichnung;km/h
+Rollen;-2
+Abheben + Steigen 95 kmh;+2
+Kreisen; L | +2
+Gleiten 100-110 kmh;+2
+Gleiten 110-120 kmh;+1
+Gleiten 120-145 kmh;0
+Gleiten 145-170 kmh;-1
+Gleiten 170-200 kmh;-2
+Gleiten 200-280 kmh;S
+
 #Arcus M – Geschwindigkeiten
 ##Bezeichnung;km/h
 VROT (Abheben);85
@@ -196,7 +211,7 @@ VAPP (Anflug);105
 Leergewicht;576 kg
 Kraftstoff (16 / 29 L);11,5 / 20,8 kg
 Gepäckfach;max. 2 kg
-Pilot vorne;70 – 115 kg
+Pilot vorne;82 – 115 kg
 Pilot hinten;max. 115 kg
 Zuladung;max. 285 kg
 MTOW;800 kg (51 kg/m²)
@@ -227,8 +242,9 @@ Nearest Airport;Nearest Seite
 Position Report;Flugplatzliste → REPORT
 Waypoint speichern;MARK
 Vario/Hawk;Setup→Audio→ Vario/Hawk wählen
-#Funkgerät Becker – Tasten;
-Taste;Funktion
+
+#Funkgerät Becker – Tasten
+##Taste;Funktion
 1x kurz;Standard
 2x kurz;Direkt Eingabe
 3x kurz;Kanalwahl
@@ -245,6 +261,3 @@ FRQ-Drehknopf;Drücken + drehen
 ##Taste;Funktion
 I/O;Ein 0.5s/Aus 3s
 MODE;ACS, A-S, Standby
-#AIS / FIS;
-Station;Nummer
-FIS Wien;1243546

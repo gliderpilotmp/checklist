@@ -1,6 +1,6 @@
-# ✈ Checkliste Arcus M D-KJRR — PWA
+# ✈ Checklisten und Infos — PWA
 
-Offline-fähige Flug-Checkliste als Progressive Web App.
+Offline-fähige Flug-Checklisten mit Infobseiten als Progressive Web App.
 
 ---
 
@@ -14,7 +14,7 @@ Offline-fähige Flug-Checkliste als Progressive Web App.
 | `icons/icon-192.png` | App-Icon 192×192 |
 | `icons/icon-512.png` | App-Icon 512×512 |
 | `server.py` | Lokaler Python-Server |
-| `ChecklisteArcusDKJRR.csv` | Deine Arcus-M-Checkliste (CSV-Import) |
+| `Config.csv` | Deine Checklisten und Infos im CSV Format (CSV-Import) |
 
 ---
 
@@ -53,15 +53,16 @@ Der Server muss `sw.js` mit dem Header `Service-Worker-Allowed: /` ausliefern.
 ## CSV-Format
 
 ```
-Kapitelname
-Spalte1;Spalte2;Hinweis (optional)
+#Kapitelname
+##Spalte1;Spalte2;Hinweis (optional)
 Zeile1a;Zeile1b
 !KritischeZeile;Wert
-Nächstes Kapitel
+#Nächstes Kapitel
 ...
 ```
 
-- Zeile mit **einem Feld** → neues Kapitel / neue Seite
+- Zeile mit **#** → neues Kapitel / neue Seite
+- Zeile mit **##**  → Spaltenüberschriften
 - **`!`** am Zeilenanfang → rot markiert, bleibt rot bis abgehakt
 - **3. Spalte** → erscheint als kursiver Hinweis unter der Zeile
 - Trennzeichen: `;` `,` Tab (automatisch erkannt)
@@ -85,4 +86,4 @@ Nächstes Kapitel
 
 ---
 
-*Arcus M D-KJRR – Checkliste Version 8*
+*Checklisten und Infos - Version 1.15*
