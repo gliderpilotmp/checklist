@@ -146,6 +146,7 @@
   :root[data-theme="light"] .segmented button.active {
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
+  .segmented button[data-mode="checklist"].active { color: var(--check-icon); }
   .segmented button[data-mode="info"].active { color: var(--info-accent); }
   .segmented .count {
     font-size: 10.5px; padding: 1px 5px; border-radius: 8px;
@@ -519,6 +520,13 @@
     color: var(--accent); text-decoration: none;
   }
   .about-link:hover { text-decoration: underline; }
+
+  /* ── Export button ─────────────────────────────────────── */
+  .btn.export {
+    background: transparent; color: var(--text-dim);
+    border: 1.5px solid var(--border);
+  }
+  .btn.export:active { background: var(--bg-elevated-2); }
 </style>
 </head>
 <body data-mode="checklist">
@@ -562,6 +570,10 @@
     <button class="btn secondary" onclick="loadConfigDemo()">Demo (Arcus M)</button>
   </div>
 
+  <div id="export-btn-row" style="display:none; width:100%; max-width:380px;">
+    <button class="btn export" onclick="exportConfigCSV()">💾 Aktuelle Konfiguration exportieren</button>
+  </div>
+
   <div class="format-hint">
 <strong>Config-CSV Aufbau</strong>
 === Checklist ===<br>
@@ -592,7 +604,6 @@ Zeile1a;Zeile1b
     </div>
     <div class="progress-pill" id="progress-text">0/0</div>
     <button class="icon-btn" id="wakelock-btn" onclick="toggleWakeLock()" title="Display wach halten">☀</button>
-    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Hell/Dunkel">🌙</button>
     <button class="icon-btn" onclick="openMenu()">⋮</button>
   </header>
 
@@ -627,9 +638,13 @@ Zeile1a;Zeile1b
       <span class="menu-icon">⏩</span> Auto-Weiter (Checkliste)
       <span class="menu-badge" id="aa-badge">aus</span>
     </div>
+    <div class="menu-item" onclick="toggleTheme()">
+      <span class="menu-icon">🌗</span> Hell / Dunkel
+      <span class="menu-badge" id="theme-badge">Dunkel</span>
+    </div>
     <div class="menu-item" onclick="cycleRowFontSize()">
       <span class="menu-icon">𝐀</span> Schriftgröße Zeilen
-      <span class="menu-badge" id="font-size-badge">Klein</span>
+      <span class="menu-badge" id="font-size-badge">Normal</span>
     </div>
 
     <div class="menu-section">Aktionen</div>
@@ -810,7 +825,7 @@ const sections = {
   info:      { pages: [], currentPage: 0, profileId: null, profileName: '' }
 };
 let mode = 'checklist';
-let settings = { theme: 'dark', autoAdvance: false, rowFontSize: 0 };
+let settings = { theme: 'dark', autoAdvance: false, rowFontSize: 1 };
 let wakeLock = null;
 
 const SESSION_KEY  = 'checklist-session-v4';
@@ -867,6 +882,8 @@ function loadSession() {
 function saveSettings() { lsSet(SETTINGS_KEY, settings); }
 function loadSettings() {
   Object.assign(settings, lsGet(SETTINGS_KEY, {}));
+  // Migrate old sessions that had rowFontSize=0 (Klein) → keep, else default Normal
+  // New installs get default from the settings object initializer (1=Normal)
   applyTheme();
   applyRowFontSize();
   const b = document.getElementById('aa-badge');
@@ -1358,10 +1375,9 @@ function backToStart() {
   document.getElementById('app-screen').classList.remove('active');
   document.getElementById('upload-screen').style.display = 'flex';
   renderProfileList();
-  // Show "Zurück zur App" button only when app already has data loaded
   const hasData = sections.checklist.pages.length > 0 || sections.info.pages.length > 0;
-  const btn = document.getElementById('back-to-app-btn');
-  if (btn) btn.style.display = hasData ? 'flex' : 'none';
+  document.getElementById('back-to-app-btn').style.display  = hasData ? 'flex' : 'none';
+  document.getElementById('export-btn-row').style.display   = hasData ? 'flex' : 'none';
 }
 
 function backToApp() {
@@ -1375,12 +1391,13 @@ function closeMenu() { document.getElementById('menu').classList.remove('open');
 
 function toggleTheme() {
   settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
-  applyTheme(); saveSettings();
+  applyTheme(); saveSettings(); closeMenu();
 }
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', settings.theme);
-  document.getElementById('theme-btn').textContent = settings.theme === 'dark' ? '☀' : '🌙';
   document.querySelector('#theme-color-meta')?.setAttribute('content', settings.theme === 'dark' ? '#1a1a1a' : '#f2f2f7');
+  const badge = document.getElementById('theme-badge');
+  if (badge) badge.textContent = settings.theme === 'dark' ? 'Dunkel' : 'Hell';
 }
 
 function toggleAutoAdvance() {
@@ -1775,6 +1792,61 @@ FRQ-Drehknopf;Drücken + drehen
 I/O;Ein 0.5s/Aus 3s
 MODE;ACS, A-S, Standby`;
 
+
+// ── Export current config as Config.csv ──────────────────────
+function exportConfigCSV() {
+  function sectionToCSV(pages) {
+    const lines = [];
+    for (const p of pages) {
+      lines.push('#' + p.title);
+      if (p.headerRow && p.headerRow.some(c => c)) {
+        lines.push('##' + p.headerRow.join(';'));
+      }
+      for (let i = 0; i < p.rows.length; i++) {
+        const row = p.rows[i];
+        const isCrit = p.critical?.[i] || false;
+        const hint   = p.hints?.[i]    || '';
+        const cells  = [...row];
+        if (isCrit) cells[0] = '!' + cells[0];
+        if (hint)   cells.push(hint);
+        lines.push(cells.join(';'));
+      }
+      lines.push(''); // blank line after chapter
+    }
+    return lines.join('\n');
+  }
+
+  const clPages   = sections.checklist.pages;
+  const infoPages = sections.info.pages;
+
+  if (!clPages.length && !infoPages.length) {
+    showToast('Keine Daten zum Exportieren'); return;
+  }
+
+  let csv = '';
+  if (clPages.length) {
+    csv += '=== Checklist ===\n\n' + sectionToCSV(clPages);
+  }
+  if (infoPages.length) {
+    csv += '\n=== Infos ===\n\n' + sectionToCSV(infoPages);
+  }
+
+  const name = sections.checklist.profileName
+            || sections.info.profileName
+            || 'Config';
+  const filename = name.replace(/[^a-zA-Z0-9_\-]/g, '_') + '.csv';
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  showToast('Exportiert: ' + filename);
+}
 // ═══ Init ═══
 loadSettings();
 renderProfileList();

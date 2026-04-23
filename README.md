@@ -71,19 +71,21 @@ Zeile1a;Zeile1b
 
 ## Features
 
-- ✅ Offline-fähig via Service Worker (Cache-first Strategy)
-- ✅ PWA installierbar (Android Chrome-Banner, iOS Safari "Add to Homescreen")
+- ✅ Checklisten und Informationen in 2 Bereichen über config.csv editierbar
+- ✅ Checklisten abhakbar
+- ✅ Kritische Zeilen (rote Markierung via `!`)
+- ✅ Mehrere Profile speichern/laden/exportieren (localStorage)
 - ✅ Dark / Light Theme
 - ✅ Bildschirm wach halten (Wake Lock API)
-- ✅ Auto-Weiter wenn Kapitel komplett
-- ✅ Kritische Zeilen (rote Markierung via `!`)
-- ✅ Mehrere Profile speichern/laden (localStorage)
+- ✅ Auto-Weiter wenn Kapitel bei Checklisten komplett
 - ✅ Fortschrittsbalken, Häkchen-Status persistent
 - ✅ Swipe-Navigation zwischen Kapiteln
 - ✅ Haptisches Feedback (Android)
+- ✅ Offline-fähig via Service Worker (Cache-first Strategy)
+- ✅ PWA installierbar (Android Chrome-Banner, iOS Safari "Add to Homescreen")
 - ✅ Safe-Area-Unterstützung (Notch, Dynamic Island)
 - ✅ Update-Banner wenn neue SW-Version verfügbar
 
 ---
 
-*Checklisten und Infos - Version 8*
+*Checklisten und Infos - Martin Pirker 2026*
