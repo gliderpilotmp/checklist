@@ -4,7 +4,7 @@
 //            stale-while-revalidate for everything else.
 // ============================================================
 
-const CACHE_NAME = 'arcus-checkliste-v15';
+const CACHE_NAME = 'arcus-checkliste-v16';
 
 // All files that make up the app shell (adjust if you rename files)
 const APP_SHELL = [
@@ -29,7 +29,9 @@ self.addEventListener('install', event => {
           })
         )
       );
-    }).then(() => self.skipWaiting())
+      // NOTE: no self.skipWaiting() here — the SW waits in 'installed' state
+      // until the user taps "Jetzt laden". Only then does SKIP_WAITING fire.
+    })
   );
 });
 

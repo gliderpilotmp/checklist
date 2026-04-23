@@ -86,4 +86,4 @@ Zeile1a;Zeile1b
 
 ---
 
-*Checklisten und Infos - Version 1.15*
+*Checklisten und Infos - Version 8*

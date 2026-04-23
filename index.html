@@ -724,20 +724,32 @@ if ('serviceWorker' in navigator) {
 }
 
 function applyUpdate() {
-  if (pendingWorker) {
-    // Listen for the SW takeover, then reload exactly once
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
-    }, { once: true });
-    pendingWorker.postMessage({ type: 'SKIP_WAITING' });
-  } else {
-    window.location.reload();
+  // Register controllerchange BEFORE sending SKIP_WAITING to avoid race condition
+  // where the SW takes over before the listener is attached.
+  let reloadTriggered = false;
+  function doReload() {
+    if (!reloadTriggered) { reloadTriggered = true; window.location.reload(); }
   }
+
+  navigator.serviceWorker.addEventListener('controllerchange', doReload, { once: true });
+
+  if (pendingWorker) {
+    pendingWorker.postMessage({ type: 'SKIP_WAITING' });
+  } else if (swRegistration && swRegistration.waiting) {
+    // pendingWorker may be null if the page was loaded with a waiting SW
+    // but the variable wasn't set (e.g. timing issue) — try directly
+    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  } else {
+    // No pending worker at all — just reload to pick up cached update
+    doReload();
+    return;
+  }
+
+  // Fallback: if controllerchange never fires within 3s, reload anyway
+  setTimeout(doReload, 3000);
 }
 function dismissUpdate() {
   document.getElementById('update-banner').classList.remove('show');
-  // Banner stays dismissed for this session; will reappear on next page load
-  // if the pending SW is still waiting.
 }
 
 // ═══ Install prompt + online status ═══
@@ -1588,6 +1600,7 @@ Kühlflüssigkeit Temp.;≤ 115 °C, sonst schneller fliegen & langsamer steigen
 #Engine stop
 ##Punkt;Aktion
 1 min Kühllauf;Wasser ca. 65°C
+Funk;aus
 Geschwindigkeit;95 – 100 km/h
 man. Bedienschalter;Mitte (automatik)
 Zündung;↓, Triebwerk stoppt
