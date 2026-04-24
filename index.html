@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Checkliste">
+<meta name="apple-mobile-web-app-title" content="Checklisten & Infos">
 <meta name="theme-color" content="#1a1a1a" id="theme-color-meta">
 
 <title>Checkliste und Info</title>
@@ -146,8 +146,18 @@
   :root[data-theme="light"] .segmented button.active {
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
-  .segmented button[data-mode="checklist"].active { color: var(--check-icon); }
-  .segmented button[data-mode="info"].active { color: var(--info-accent); }
+  .segmented button[data-mode="checklist"].active {
+    background: rgba(76,175,80,0.22); color: var(--check-icon);
+  }
+  :root[data-theme="light"] .segmented button[data-mode="checklist"].active {
+    background: rgba(52,199,89,0.18); color: var(--check-icon);
+  }
+  .segmented button[data-mode="info"].active {
+    background: rgba(249,199,79,0.22); color: var(--info-accent);
+  }
+  :root[data-theme="light"] .segmented button[data-mode="info"].active {
+    background: rgba(214,143,0,0.15); color: var(--info-accent);
+  }
   .segmented .count {
     font-size: 10.5px; padding: 1px 5px; border-radius: 8px;
     background: var(--bg-elevated-2); color: var(--text-dim-2);
@@ -331,15 +341,16 @@
     border-radius: 2px; transition: width 0.28s ease;
   }
 
-  table { width: 100%; border-collapse: collapse; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
   tr.hdr td {
     padding: 7px 10px; font-size: 10px; text-transform: uppercase;
     letter-spacing: 0.7px; color: var(--text-dim-2); font-weight: 700;
     background: var(--bg-elevated); border-bottom: 1px solid var(--border-subtle);
+    overflow-wrap: break-word; word-break: break-word;
   }
-  tr.hdr td:first-child { padding-left: 16px; }
-  tr.hdr td:last-child { padding-right: 16px; }
+  tr.hdr td:first-child { padding-left: 16px; width: 58%; }
+  tr.hdr td:last-child { padding-right: 16px; width: 42%; }
 
   tr.row {
     border-bottom: 1px solid var(--border-subtle);
@@ -350,9 +361,10 @@
   tr.row td {
     padding: 13px 10px; font-size: var(--row-font-size, 15px);
     line-height: 1.35; vertical-align: middle; color: var(--text);
+    overflow-wrap: break-word; word-break: break-word;
   }
-  tr.row td:first-child { padding-left: 16px; font-weight: 500; }
-  tr.row td:last-child { padding-right: 16px; color: var(--text-dim); text-align: right; font-size: calc(var(--row-font-size, 15px) - 1px); }
+  tr.row td:first-child { padding-left: 16px; font-weight: 500; width: 58%; }
+  tr.row td:last-child { padding-right: 16px; color: var(--text-dim); text-align: right; font-size: calc(var(--row-font-size, 15px) - 1px); width: 42%; }
 
   body[data-mode="info"] tr.row td:last-child {
     color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500;
@@ -552,8 +564,8 @@
 <!-- Start Screen -->
 <div id="upload-screen">
   <img class="app-logo" src="./icons/icon-192.png" alt="App Icon">
-  <h2>Checkliste &amp; Info</h2>
-  <p>Eine Config-Datei enthält Checkliste und Info-Seiten. Zwischen beiden wechselst du später mit ☑ / ⓘ im Header.</p>
+  <h2>Checklisten &amp; Infos</h2>
+  <p>Eine Config-Datei enthält die Checklisten und die Info-Seiten. Zwischen beiden wechselst du später mit ☑ / ⓘ im Header.</p>
 
   <div id="profile-list-container" style="width:100%; display:flex; justify-content:center;"></div>
 
@@ -595,10 +607,10 @@ Zeile1a;Zeile1b
 <div id="app-screen">
   <header>
     <div class="segmented">
-      <button id="seg-cl"   data-mode="checklist" onclick="switchMode('checklist')" title="Checkliste">
+      <button id="seg-cl"   data-mode="checklist" onclick="switchMode('checklist')" title="Checklisten">
         <span class="seg-icon">☑</span><span class="count" id="cnt-cl">0</span>
       </button>
-      <button id="seg-info" data-mode="info" onclick="switchMode('info')" title="Info">
+      <button id="seg-info" data-mode="info" onclick="switchMode('info')" title="Infos">
         <span class="seg-icon">ⓘ</span><span class="count" id="cnt-info">0</span>
       </button>
     </div>
@@ -608,7 +620,7 @@ Zeile1a;Zeile1b
   </header>
 
   <div class="profile-bar" id="profile-bar">
-    <span class="mode-chip" id="mode-chip">CHECKLISTE</span>
+    <span class="mode-chip" id="mode-chip">CHECKLISTEN</span>
     <span id="profile-label"></span>
   </div>
 
@@ -684,7 +696,7 @@ Zeile1a;Zeile1b
     <div class="dialog-handle"></div>
     <img class="about-logo" src="./icons/icon-192.png" alt="App Icon">
     <h3 class="about-title">About Checklist &amp; Info</h3>
-    <p class="about-desc">Offline-fähige Flug-Checkliste und Info-App.</p>
+    <p class="about-desc">Offline-fähige Flug-Checklisten und Info-App.</p>
     <div class="about-divider"></div>
     <div class="about-row">
       <span class="about-label">Version</span>
@@ -1266,7 +1278,7 @@ function updateProfileBar() {
     return;
   }
   bar.classList.remove('hidden');
-  chip.textContent = mode === 'info' ? 'INFO' : 'CHECKLISTE';
+  chip.textContent = mode === 'info' ? 'INFOS' : 'CHECKLISTEN';
   chip.classList.toggle('info', mode === 'info');
   lbl.textContent = section.profileName || '—';
 }
