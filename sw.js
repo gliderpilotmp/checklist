@@ -1,5 +1,5 @@
 // ============================================================
-//  Arcus M Checkliste — Service Worker v1
+//  Checklisten und Infos — Service Worker v1
 //  Strategy: Cache-first for all app shell assets,
 //            stale-while-revalidate for everything else.
 // ============================================================
